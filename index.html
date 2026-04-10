@@ -1,0 +1,3830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevVault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Layout */
+  --sidebar-w: 240px;
+  --topbar-h: 48px;
+
+  /* Light mode surfaces */
+  --bg-app:      #F7F7F8;
+  --bg-sidebar:  #FFFFFF;
+  --bg-main:     #F7F7F8;
+  --bg-surface:  #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-input:    #F3F4F6;
+  --bg-hover:    rgba(0,0,0,0.04);
+  --bg-active:   rgba(59,130,246,0.08);
+  --bg-code:     #F8F9FA;
+
+  /* Borders */
+  --border:      rgba(0,0,0,0.08);
+  --border-md:   rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.18);
+
+  /* Text */
+  --text-pri:    #0F0F11;
+  --text-sec:    #6B7280;
+  --text-muted:  #9CA3AF;
+  --text-placeholder: #C4C9D4;
+
+  /* Accent — muted indigo */
+  --accent:        #4F46E5;
+  --accent-light:  rgba(79,70,229,0.08);
+  --accent-border: rgba(79,70,229,0.2);
+  --accent-hover:  #4338CA;
+
+  /* Semantic */
+  --green:  #059669;
+  --green-light: rgba(5,150,105,0.08);
+  --red:    #DC2626;
+  --red-light: rgba(220,38,38,0.08);
+  --amber:  #D97706;
+
+  /* Code syntax — muted, VS Code-like */
+  --code-kw:   #6366F1;
+  --code-str:  #16A34A;
+  --code-num:  #D97706;
+  --code-cm:   #9CA3AF;
+  --code-tp:   #0891B2;
+  --code-fn:   #7C3AED;
+
+  /* Typography */
+  --font-ui:   'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* Radii */
+  --r-sm:  4px;
+  --r-md:  6px;
+  --r-lg:  10px;
+  --r-xl:  14px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.06);
+  --shadow-xl: 0 24px 48px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.06);
+
+  /* Transitions */
+  --t-fast: 120ms ease;
+  --t-base: 200ms ease;
+  --t-slow: 300ms ease;
+}
+
+/* Dark mode */
+/* ── Dark mode: system preference ── */
+@media (prefers-color-scheme: dark) {
+  :root { --dm: 1; }
+}
+
+/* ── Dark mode token set ── */
+/* Applied via [data-theme="dark"] (manual toggle) or system pref */
+@media (prefers-color-scheme: dark) { :root { --force-dark: 1; } }
+
+.dark-mode, [data-theme="dark"] {
+  /* Layered depth surfaces — 5 distinct levels, never flat black */
+  --bg-app:       #0C0D0F;   /* deepest: app shell */
+  --bg-sidebar:   #111317;   /* sidebar panel */
+  --bg-main:      #0C0D0F;   /* main content area */
+  --bg-surface:   #161A1F;   /* cards, sections */
+  --bg-elevated:  #1C2128;   /* hover elevated, editor */
+  --bg-input:     #13171C;   /* form inputs */
+  --bg-hover:     rgba(255,255,255,0.04);
+  --bg-active:    rgba(56,189,248,0.10);
+  --bg-code:      #0D1117;   /* code block bg — GitHub dark inspired */
+
+  /* Borders — layered not flat */
+  --border:        rgba(255,255,255,0.06);
+  --border-md:     rgba(255,255,255,0.09);
+  --border-strong: rgba(255,255,255,0.14);
+
+  /* Text — warm soft white hierarchy, never harsh pure #fff */
+  --text-pri:         #E6EDF3;   /* headings, primary — GitHub dark */
+  --text-sec:         #7D8590;   /* body, descriptions */
+  --text-muted:       #484F58;   /* labels, timestamps */
+  --text-placeholder: #30363D;
+
+  /* Primary accent: electric sky blue — focused, sharp, intentional */
+  --accent:        #38BDF8;   /* sky-400: clean, focused, Linear-like */
+  --accent-light:  rgba(56,189,248,0.09);
+  --accent-border: rgba(56,189,248,0.22);
+  --accent-hover:  #7DD3FC;   /* sky-300 on hover */
+
+  /* Semantic accents */
+  --green:       #3FB950;   /* GitHub dark green */
+  --green-light: rgba(63,185,80,0.09);
+  --red:         #F85149;   /* GitHub dark red */
+  --red-light:   rgba(248,81,73,0.09);
+  --amber:       #D29922;
+
+  /* Code syntax — Refined dark, VS Code / GitHub dark inspired */
+  /* Calm but crisp. No neon. Maximum readability. */
+  --code-kw:   #FF7B72;   /* keywords: muted coral — precise, visible */
+  --code-str:  #A5D6FF;   /* strings: soft blue — easy on eyes */
+  --code-num:  #79C0FF;   /* numbers: clear blue */
+  --code-cm:   #484F58;   /* comments: muted, italic */
+  --code-tp:   #FFA657;   /* types: warm amber — distinct */
+  --code-fn:   #D2A8FF;   /* functions: soft purple */
+
+  /* Shadows — heavier for dark surfaces */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.7), 0 4px 8px rgba(0,0,0,0.5);
+  --shadow-xl: 0 24px 56px rgba(0,0,0,0.8), 0 8px 16px rgba(0,0,0,0.6);
+}
+
+/* ── Reset & Base ── */
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-app);
+  color: var(--text-pri);
+  display: flex;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  height: var(--topbar-h);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.logo {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--text-pri);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.logo-mark {
+  width: 22px; height: 22px;
+  background: var(--accent);
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-mark svg { width: 12px; height: 12px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+
+.sidebar-actions {
+  padding: 10px 10px 0;
+  display: flex;
+  gap: 5px;
+}
+
+.btn-new {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-md);
+  background: transparent;
+  color: var(--text-sec);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all var(--t-fast);
+}
+.btn-new:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  color: var(--text-pri);
+}
+.btn-new svg { opacity: 0.6; }
+
+.sidebar-search {
+  padding: 8px 10px;
+}
+
+.search-wrap { position: relative; }
+.search-icon {
+  position: absolute; left: 9px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex; align-items: center;
+}
+.search-input {
+  width: 100%;
+  padding: 6px 10px 6px 30px;
+  background: var(--bg-input);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  color: var(--text-pri);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  outline: none;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.search-input:focus {
+  border-color: var(--accent);
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.search-input::placeholder { color: var(--text-placeholder); }
+
+.sidebar-section-label {
+  padding: 12px 14px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tree-scroll { flex: 1; overflow-y: auto; padding: 4px 0 24px; }
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: var(--r-md);
+  margin: 1px 6px;
+  font-size: 12.5px;
+  cursor: pointer;
+  color: var(--text-sec);
+  transition: background var(--t-fast), color var(--t-fast);
+  position: relative;
+  user-select: none;
+}
+.tree-row:hover { background: var(--bg-hover); color: var(--text-pri); }
+.tree-row.active {
+  background: var(--bg-active);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.tree-arrow {
+  width: 14px; height: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+  transition: transform var(--t-fast);
+  flex-shrink: 0;
+}
+.tree-arrow svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tree-arrow.open { transform: rotate(90deg); }
+
+.tree-icon {
+  width: 16px; height: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+.tree-icon svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.tree-row.active .tree-icon { color: var(--accent); }
+
+.tree-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tree-count {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-code);
+  padding: 0 4px;
+}
+
+.tree-ctx-btn {
+  width: 18px; height: 18px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--t-fast), color var(--t-fast);
+  font-size: 13px;
+  line-height: 1;
+}
+.tree-row:hover .tree-ctx-btn { display: flex; }
+.tree-ctx-btn:hover { background: var(--bg-hover); color: var(--text-pri); }
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.topbar {
+  height: var(--topbar-h);
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.breadcrumb .bc-sep {
+  color: var(--text-muted);
+  font-size: 12px;
+  opacity: 0.5;
+}
+.breadcrumb .bc-link {
+  cursor: pointer;
+  transition: color var(--t-fast);
+  font-weight: 400;
+}
+.breadcrumb .bc-link:hover { color: var(--text-pri); }
+.breadcrumb .bc-cur {
+  color: var(--text-pri);
+  font-weight: 500;
+}
+
+.topbar-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.btn-primary {
+  padding: 6px 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--t-fast), transform var(--t-fast);
+  letter-spacing: -0.1px;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:active { transform: scale(0.98); }
+
+.btn-ghost {
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--text-sec);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--t-fast);
+}
+.btn-ghost:hover {
+  background: var(--bg-hover);
+  color: var(--text-pri);
+  border-color: var(--border-strong);
+}
+
+/* ── Content area ── */
+.content-area { flex: 1; display: flex; overflow: hidden; }
+
+.view-pane {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px 48px;
+  display: none;
+}
+.view-pane.active { display: block; }
+
+/* ── Welcome state ── */
+.welcome-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  text-align: center;
+}
+.welcome-icon {
+  width: 48px; height: 48px;
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--r-xl);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 4px;
+  color: var(--accent);
+}
+.welcome-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+.welcome-state h2 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--text-pri);
+}
+.welcome-state p {
+  font-size: 13px;
+  color: var(--text-sec);
+  max-width: 280px;
+  line-height: 1.65;
+}
+
+/* ── Folder view ── */
+.folder-header { margin-bottom: 28px; }
+.folder-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  margin-bottom: 5px;
+  color: var(--text-pri);
+  display: flex; align-items: center; gap: 10px;
+}
+.folder-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.meta-sep { color: var(--border-strong); }
+
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.section-block { margin-bottom: 32px; }
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.folder-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: box-shadow var(--t-base), border-color var(--t-fast), transform var(--t-base);
+}
+.folder-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-md);
+  transform: translateY(-1px);
+}
+.folder-card-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--r-md);
+  background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+  color: var(--accent);
+}
+.folder-card-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+.folder-card-name { font-size: 13px; font-weight: 500; margin-bottom: 3px; color: var(--text-pri); }
+.folder-card-count { font-size: 11px; color: var(--text-muted); }
+
+.note-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: box-shadow var(--t-base), border-color var(--t-fast);
+}
+.note-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-md);
+}
+.note-card-type {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.note-card-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; line-height: 1.4; color: var(--text-pri); }
+.note-card-preview {
+  font-size: 12px; color: var(--text-sec); line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.note-card-tags { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+
+.tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-code);
+  font-weight: 500;
+  background: var(--bg-input);
+  color: var(--text-sec);
+  border: 1px solid var(--border);
+}
+
+.empty-folder {
+  padding: 48px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.empty-folder-icon {
+  width: 36px; height: 36px;
+  margin: 0 auto 14px;
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+.empty-folder-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+
+/* ── Note view ── */
+.rendered-note { max-width: 800px; margin: 0 auto; }
+
+/* Note hero */
+.note-hero {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.note-hero-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.note-type-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-sec);
+  background: var(--bg-input);
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  letter-spacing: -0.1px;
+}
+.ai-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--accent-border);
+}
+.ai-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+.note-title-big {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+  line-height: 1.2;
+  color: var(--text-pri);
+  margin-bottom: 10px;
+}
+.note-desc { display: none; }
+.note-tags-row { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.complexity-row {
+  display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.complexity-pill {
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-code);
+  display: flex; align-items: center; gap: 5px;
+  border: 1px solid var(--border);
+  color: var(--text-sec);
+  background: var(--bg-surface);
+}
+.cp-time { color: var(--accent); background: var(--accent-light); border-color: var(--accent-border); }
+.cp-space { color: var(--green); background: var(--green-light); border-color: rgba(5,150,105,0.2); }
+
+/* Sections */
+.md-section {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 22px 24px;
+  margin-bottom: 10px;
+  transition: box-shadow var(--t-base), border-color var(--t-fast);
+  position: relative;
+}
+.md-section:hover { box-shadow: var(--shadow-sm); }
+.edit-active .md-section { border-color: var(--border-md); }
+
+.md-h2 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--text-pri);
+  margin: 0 0 14px 0;
+  padding: 0;
+  border: none;
+  display: flex; align-items: center; gap: 8px;
+  line-height: 1.4;
+}
+.md-h2:first-child { margin-top: 0; }
+
+.md-section-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: var(--r-sm);
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 10px; font-weight: 600;
+  font-family: var(--font-code);
+  flex-shrink: 0;
+}
+
+.md-h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sec);
+  margin: 16px 0 8px;
+  letter-spacing: -0.1px;
+}
+
+.md-p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-sec);
+  margin-bottom: 10px;
+}
+.md-p:last-child { margin-bottom: 0; }
+
+.md-code-inline {
+  font-family: var(--font-code);
+  font-size: 12.5px;
+  background: var(--bg-input);
+  padding: 1.5px 5px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  color: var(--accent);
+}
+
+.md-ul { margin: 4px 0 10px; padding: 0; list-style: none; }
+.md-ul li {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-sec);
+  padding: 2px 0 2px 18px;
+  position: relative;
+}
+.md-ul li::before {
+  content: '';
+  position: absolute; left: 5px; top: 11px;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.md-ol { margin: 4px 0 10px; padding: 0; list-style: none; counter-reset: ol; }
+.md-ol li {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-sec);
+  padding: 2px 0 2px 24px;
+  position: relative;
+  counter-increment: ol;
+}
+.md-ol li::before {
+  content: counter(ol);
+  position: absolute; left: 0; top: 4px;
+  width: 17px; height: 17px;
+  border-radius: var(--r-sm);
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 10px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-code);
+}
+
+.md-blockquote {
+  border-left: 2px solid var(--accent);
+  padding: 10px 14px;
+  margin: 10px 0;
+  color: var(--text-sec);
+  font-size: 14px;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+.md-hr { height: 1px; background: var(--border); border: none; margin: 18px 0; }
+.md-strong { font-weight: 600; color: var(--text-pri); }
+.md-em { font-style: italic; }
+
+/* Code blocks */
+.code-block {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin: 12px 0;
+  overflow: hidden;
+}
+.code-header {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-surface);
+}
+.code-lang {
+  font-size: 11px;
+  font-family: var(--font-code);
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.code-lang-sel {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-code);
+  font-size: 11px;
+  cursor: pointer;
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.code-copy-btn {
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  transition: all var(--t-fast);
+}
+.code-copy-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-pri);
+  border-color: var(--border-md);
+}
+.code-body {
+  padding: 16px 18px;
+  font-family: var(--font-code);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-pri);
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+.code-body.hidden { display: none; }
+
+/* Syntax colors */
+.kw  { color: var(--code-kw); }
+.fn  { color: var(--code-fn); }
+.cm  { color: var(--code-cm); font-style: italic; }
+.str { color: var(--code-str); }
+.num { color: var(--code-num); }
+.tp  { color: var(--code-tp); }
+
+/* Code editor textarea */
+.ce-code-wrap { position: relative; }
+.ce-code-wrap textarea {
+  width: 100%;
+  background: var(--bg-code);
+  color: var(--text-pri);
+  font-family: var(--font-code);
+  font-size: 13px;
+  line-height: 1.7;
+  border: none;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  padding: 16px 18px;
+  tab-size: 2;
+  border-top: 1px solid var(--border);
+  display: none;
+}
+.ce-code-wrap textarea.active { display: block; }
+
+/* Related notes */
+.related-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  margin-top: 24px;
+}
+.related-title {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.related-links { display: flex; gap: 6px; flex-wrap: wrap; }
+.rel-link {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  color: var(--text-sec);
+  cursor: pointer;
+  background: var(--bg-input);
+  transition: all var(--t-fast);
+  font-weight: 500;
+}
+.rel-link:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+/* prose-block / steps for manual notes */
+.prose-block {
+  background: var(--bg-input);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.block-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.prose-text { font-size: 14px; line-height: 1.75; color: var(--text-sec); }
+.prose-text p { margin-bottom: 8px; }
+.prose-text p:last-child { margin-bottom: 0; }
+.prose-text code { font-family: var(--font-code); font-size: 12.5px; background: var(--bg-surface); padding: 1px 5px; border-radius: var(--r-sm); border: 1px solid var(--border); color: var(--accent); }
+
+.steps-block {
+  background: var(--bg-input);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.step-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+.step-item:last-child { margin-bottom: 0; }
+.step-num {
+  width: 20px; height: 20px; border-radius: var(--r-sm);
+  background: var(--accent-light); color: var(--accent);
+  font-size: 10px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+  font-family: var(--font-code);
+}
+.step-text { font-size: 13.5px; line-height: 1.7; color: var(--text-sec); }
+.step-text code { font-family: var(--font-code); font-size: 12px; background: var(--bg-surface); padding: 1px 5px; border-radius: var(--r-sm); border: 1px solid var(--border); color: var(--accent); }
+
+/* ── Editor pane ── */
+.editor-pane {
+  width: 380px;
+  border-left: 1px solid var(--border);
+  background: var(--bg-sidebar);
+  display: none;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100%;
+}
+.editor-pane.open { display: flex; }
+
+.editor-header {
+  height: var(--topbar-h);
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.editor-title { font-size: 13px; font-weight: 600; flex: 1; color: var(--text-pri); }
+.editor-close {
+  width: 24px; height: 24px; border-radius: var(--r-md);
+  border: 1px solid var(--border-md); background: transparent;
+  color: var(--text-sec); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; line-height: 1;
+  transition: all var(--t-fast);
+}
+.editor-close:hover { background: var(--bg-hover); color: var(--text-pri); }
+
+.editor-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+}
+.editor-tab {
+  flex: 1; padding: 9px 0;
+  font-size: 12px; font-weight: 500;
+  font-family: var(--font-ui);
+  cursor: pointer; border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all var(--t-fast);
+}
+.editor-tab:hover { color: var(--text-sec); }
+.editor-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.editor-fields {
+  flex: 1; overflow-y: auto;
+  padding: 14px; display: flex; flex-direction: column; gap: 12px;
+}
+
+.field-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.field-input {
+  width: 100%; padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-pri); font-size: 13px;
+  font-family: var(--font-ui); outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.field-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+  background: var(--bg-surface);
+}
+.field-input::placeholder { color: var(--text-placeholder); }
+
+.field-select {
+  width: 100%; padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-pri); font-size: 13px;
+  font-family: var(--font-ui); outline: none;
+  cursor: pointer;
+  transition: border-color var(--t-fast);
+  appearance: none;
+}
+.field-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+.field-select option { background: var(--bg-surface); }
+
+.field-textarea {
+  width: 100%; padding: 8px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-pri); font-size: 13px;
+  font-family: var(--font-ui); outline: none;
+  resize: vertical; min-height: 88px; line-height: 1.65;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.field-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+  background: var(--bg-surface);
+}
+.field-textarea::placeholder { color: var(--text-placeholder); }
+.field-code { font-family: var(--font-code); font-size: 12px; min-height: 130px; }
+
+.type-selector { display: flex; gap: 4px; flex-wrap: wrap; }
+.type-btn {
+  padding: 5px 11px; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: transparent; color: var(--text-sec);
+  font-size: 11.5px; font-family: var(--font-ui); font-weight: 500;
+  cursor: pointer; transition: all var(--t-fast);
+}
+.type-btn:hover { background: var(--bg-hover); color: var(--text-pri); }
+.type-btn.selected { background: var(--accent-light); border-color: var(--accent-border); color: var(--accent); }
+
+.smart-paste-wrap { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:12px; }
+.smart-paste-zone {
+  border: 1.5px dashed var(--border-md);
+  border-radius: var(--r-lg);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-input);
+  transition: all var(--t-base);
+  min-height: 140px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+}
+.smart-paste-zone:hover, .smart-paste-zone.dragover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.smart-paste-zone.has-content {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+.spz-icon { font-size: 20px; color: var(--text-muted); margin-bottom: 2px; }
+.spz-title { font-size: 13px; font-weight: 500; color: var(--text-sec); }
+.spz-sub { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; max-width: 220px; }
+.spz-shortcut {
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-family: var(--font-code);
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  padding: 2px 7px; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+
+.smart-paste-textarea {
+  width: 100%; height: 180px;
+  padding: 10px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-pri); font-size: 12px;
+  font-family: var(--font-code);
+  outline: none; resize: vertical;
+  line-height: 1.6;
+  transition: border-color var(--t-fast);
+  display: none;
+}
+.smart-paste-textarea.visible { display: block; }
+.smart-paste-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+
+.parse-preview {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: none;
+}
+.parse-preview.show { display: block; }
+.pp-title { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.pp-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 5px; font-size: 12px; }
+.pp-key { color: var(--text-muted); min-width: 70px; flex-shrink: 0; }
+.pp-val { color: var(--text-sec); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.pp-val.good { color: var(--green); }
+.pp-val.bad { color: var(--text-muted); font-style: italic; }
+
+.editor-footer {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px; flex-shrink: 0;
+}
+
+/* ── Modals ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none; align-items: center; justify-content: center;
+  z-index: 400;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-xl);
+  width: 400px; padding: 24px;
+  box-shadow: var(--shadow-xl);
+  animation: modal-in 0.18s ease;
+}
+@keyframes modal-in { from{opacity:0;transform:scale(0.97) translateY(4px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+.modal-title { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 5px; color: var(--text-pri); }
+.modal-desc { font-size: 13px; color: var(--text-sec); margin-bottom: 18px; line-height: 1.55; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+
+.delete-modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-xl);
+  width: 360px; padding: 24px;
+  box-shadow: var(--shadow-xl);
+  animation: modal-in 0.18s ease;
+}
+.delete-modal .modal-title { color: var(--red); }
+.btn-danger {
+  padding: 6px 14px; background: var(--red-light);
+  color: var(--red); border: 1px solid rgba(220,38,38,0.25);
+  border-radius: var(--r-md); font-size: 12px;
+  font-family: var(--font-ui); font-weight: 500;
+  cursor: pointer; transition: all var(--t-fast);
+}
+.btn-danger:hover { background: rgba(220,38,38,0.15); }
+
+/* ── Generating overlay ── */
+.gen-overlay {
+  position: absolute; inset: 0;
+  background: rgba(var(--bg-main),0.85);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 100; gap: 12px;
+  backdrop-filter: blur(6px);
+}
+.gen-overlay.show { display: flex; }
+.gen-spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border-md);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.gen-text { font-size: 13px; color: var(--text-sec); font-weight: 500; }
+.gen-sub { font-size: 12px; color: var(--text-muted); }
+
+/* ── Context menu ── */
+.ctx-menu {
+  position: fixed; z-index: 500;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-lg); padding: 4px;
+  min-width: 158px;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  animation: ctx-in 0.1s ease;
+}
+.ctx-menu.open { display: block; }
+@keyframes ctx-in { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
+
+.ctx-item {
+  padding: 7px 10px; border-radius: var(--r-md);
+  font-size: 12.5px; cursor: pointer; color: var(--text-sec);
+  display: flex; align-items: center; gap: 8px;
+  transition: background var(--t-fast), color var(--t-fast);
+  font-weight: 400;
+}
+.ctx-item:hover { background: var(--bg-hover); color: var(--text-pri); }
+.ctx-item.danger { color: var(--red); }
+.ctx-item.danger:hover { background: var(--red-light); }
+.ctx-sep { height: 1px; background: var(--border); margin: 3px 4px; }
+
+/* ── Notification ── */
+.notif {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: var(--text-pri); color: var(--bg-surface);
+  border-radius: var(--r-lg); padding: 10px 16px;
+  font-size: 12.5px; font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease;
+  z-index: 600;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.notif.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.notif-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.notif-dot.success { background: var(--green); }
+.notif-dot.info { background: var(--accent); }
+
+/* ── Floating edit button ── */
+.edit-fab {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-md);
+  color: var(--text-sec);
+  cursor: pointer;
+  display: none;
+  align-items: center; justify-content: center;
+  box-shadow: var(--shadow-md);
+  transition: all var(--t-base);
+  z-index: 50;
+  flex-direction: column;
+  gap: 1px;
+}
+.edit-fab.visible { display: flex; }
+.edit-fab:hover {
+  box-shadow: var(--shadow-lg);
+  color: var(--text-pri);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+.edit-fab.editing {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(79,70,229,0.35);
+}
+.edit-fab.editing:hover { background: var(--accent-hover); }
+#editFabIcon { font-size: 14px; line-height: 1; }
+#editFabLabel { display: none; }
+
+/* ── Inline editing ── */
+[contenteditable] { outline: none; }
+[contenteditable]:hover { background: var(--bg-hover); border-radius: var(--r-sm); cursor: text; }
+[contenteditable]:focus { background: var(--accent-light); border-radius: var(--r-sm); box-shadow: 0 0 0 2px var(--accent-border); }
+.edit-active .md-section { border-color: var(--accent-border); }
+
+.section-del-btn {
+  position: absolute; top: 12px; right: 12px;
+  width: 20px; height: 20px; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-surface); color: var(--text-muted);
+  font-size: 11px; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+  transition: all var(--t-fast); z-index: 5;
+}
+.edit-active .md-section:hover .section-del-btn { display: flex; }
+.section-del-btn:hover { background: var(--red-light); color: var(--red); border-color: rgba(220,38,38,0.3); }
+
+/* ── Inline toolbar ── */
+.inline-toolbar {
+  position: fixed;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-md);
+  padding: 3px 5px;
+  display: flex; gap: 1px; align-items: center;
+  box-shadow: var(--shadow-lg);
+  z-index: 600;
+  opacity: 0; transform: translateY(-4px);
+  transition: opacity var(--t-fast), transform var(--t-fast);
+  pointer-events: none;
+}
+.inline-toolbar.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.it-btn {
+  width: 26px; height: 26px; border: none;
+  background: transparent; border-radius: var(--r-sm);
+  color: var(--text-sec); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; font-family: var(--font-ui);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.it-btn:hover { background: var(--bg-hover); color: var(--text-pri); }
+.it-sep { width: 1px; height: 14px; background: var(--border); margin: 0 2px; }
+
+/* ── Block picker ── */
+.block-picker {
+  position: fixed; z-index: 500;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-xl); padding: 6px;
+  width: 210px;
+  box-shadow: var(--shadow-xl);
+  display: none;
+  animation: bpIn 0.12s ease;
+}
+.block-picker.open { display: block; }
+@keyframes bpIn { from{opacity:0;transform:scale(0.97) translateY(-4px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+.bp-label {
+  font-size: 10px; color: var(--text-muted); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 4px 8px 6px;
+}
+.bp-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 8px; border-radius: var(--r-md);
+  cursor: pointer; font-size: 12.5px; color: var(--text-sec);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.bp-item:hover { background: var(--bg-hover); color: var(--text-pri); }
+.bp-icon {
+  width: 26px; height: 26px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+  background: var(--bg-input); color: var(--text-sec);
+  font-family: var(--font-code);
+  font-size: 11px; font-weight: 500;
+}
+.bp-sep { height: 1px; background: var(--border); margin: 3px 0; }
+
+/* ── Add block row ── */
+.add-block-row {
+  display: none; align-items: center; gap: 8px;
+  padding: 4px 0; margin: 4px 0; opacity: 0;
+  transition: opacity var(--t-base);
+}
+.edit-active .add-block-row { display: flex; opacity: 1; }
+.add-block-line { flex: 1; height: 1px; background: var(--border); }
+.add-block-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--border-md);
+  background: var(--bg-surface); color: var(--text-muted);
+  font-size: 11px; font-weight: 500;
+  font-family: var(--font-ui); cursor: pointer;
+  transition: all var(--t-fast); white-space: nowrap;
+}
+.add-block-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+/* ── Add section ── */
+.add-section-row { display: none; margin-top: 14px; }
+.add-section-btn {
+  width: 100%; padding: 10px;
+  border: 1.5px dashed var(--border-md);
+  border-radius: var(--r-lg); background: transparent;
+  color: var(--text-muted); font-size: 12px;
+  font-family: var(--font-ui); font-weight: 500;
+  cursor: pointer; transition: all var(--t-fast); text-align: center;
+}
+.add-section-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+/* ── Image block ── */
+.md-image-block { border-radius: var(--r-lg); overflow: hidden; margin: 10px 0; }
+.md-image-block img { width: 100%; display: block; border-radius: var(--r-lg); max-height: 480px; object-fit: contain; background: var(--bg-input); }
+.md-image-block .img-caption { font-size: 12px; color: var(--text-muted); text-align: center; padding: 6px 0; font-style: italic; }
+.img-upload-placeholder {
+  border: 1.5px dashed var(--border-md);
+  border-radius: var(--r-lg); padding: 32px 20px; text-align: center;
+  color: var(--text-muted); cursor: pointer; background: var(--bg-input);
+  transition: all var(--t-fast);
+}
+.img-upload-placeholder:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+.img-upload-placeholder input[type=file] { display: none; }
+.img-upload-placeholder .up-icon { font-size: 22px; margin-bottom: 8px; opacity: 0.5; }
+.img-upload-placeholder .up-text { font-size: 13px; font-weight: 500; }
+.img-upload-placeholder .up-sub { font-size: 11px; margin-top: 3px; }
+
+/* ── md-text-block ── */
+.md-text-block {
+  font-family: var(--font-code); font-size: 12.5px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 10px 12px; margin: 6px 0;
+  color: var(--text-sec); line-height: 1.6; white-space: pre-wrap;
+}
+
+/* ── save dot ── */
+.save-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 1.5s ease-in-out infinite; }
+
+
+/* ═══════════════════════════════════════════
+   Dark mode component overrides
+   ═══════════════════════════════════════════ */
+
+/* Sidebar */
+.dark-mode .sidebar,
+[data-theme="dark"] .sidebar {
+  border-right-color: var(--border);
+  background: var(--bg-sidebar);
+}
+
+.dark-mode .sidebar-header,
+[data-theme="dark"] .sidebar-header {
+  border-bottom-color: var(--border);
+}
+
+/* Tree active state: accent left indicator + glow */
+.dark-mode .tree-row.active,
+[data-theme="dark"] .tree-row.active {
+  background: var(--bg-active);
+  color: var(--accent);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* Topbar */
+.dark-mode .topbar,
+[data-theme="dark"] .topbar {
+  background: var(--bg-sidebar);
+  border-bottom-color: var(--border);
+}
+
+/* Cards: subtle lift from app bg */
+.dark-mode .folder-card,
+[data-theme="dark"] .folder-card {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+.dark-mode .folder-card:hover,
+[data-theme="dark"] .folder-card:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-md);
+  box-shadow: var(--shadow-md);
+}
+
+.dark-mode .note-card,
+[data-theme="dark"] .note-card {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+.dark-mode .note-card:hover,
+[data-theme="dark"] .note-card:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-md);
+}
+
+/* Note hero — no gradient, clean boundary */
+.dark-mode .note-hero,
+[data-theme="dark"] .note-hero {
+  border-bottom-color: var(--border);
+}
+
+/* Sections */
+.dark-mode .md-section,
+[data-theme="dark"] .md-section {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+.dark-mode .md-section:hover,
+[data-theme="dark"] .md-section:hover {
+  border-color: var(--border-md);
+  box-shadow: var(--shadow-sm);
+}
+.dark-mode .edit-active .md-section,
+[data-theme="dark"] .edit-active .md-section {
+  border-color: var(--accent-border);
+}
+
+/* Code blocks — flagship element in dark mode */
+.dark-mode .code-block,
+[data-theme="dark"] .code-block {
+  background: var(--bg-code);
+  border-color: var(--border-md);
+  box-shadow: var(--shadow-sm);
+}
+.dark-mode .code-header,
+[data-theme="dark"] .code-header {
+  background: rgba(22,27,34,0.8);
+  border-bottom-color: var(--border);
+}
+.dark-mode .code-body,
+[data-theme="dark"] .code-body {
+  color: #C9D1D9; /* GitHub dark base text */
+}
+.dark-mode .ce-code-wrap textarea,
+[data-theme="dark"] .ce-code-wrap textarea {
+  background: var(--bg-code);
+  color: #C9D1D9;
+  border-top-color: var(--border);
+}
+
+/* Primary button — bright on dark */
+.dark-mode .btn-primary,
+[data-theme="dark"] .btn-primary {
+  background: var(--accent);
+  color: #0C0D0F;
+  font-weight: 600;
+}
+.dark-mode .btn-primary:hover,
+[data-theme="dark"] .btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+/* Ghost button */
+.dark-mode .btn-ghost,
+[data-theme="dark"] .btn-ghost {
+  border-color: var(--border-md);
+  color: var(--text-sec);
+}
+.dark-mode .btn-ghost:hover,
+[data-theme="dark"] .btn-ghost:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+  color: var(--text-pri);
+}
+
+/* Input focus — subtle accent glow */
+.dark-mode .field-input:focus,
+.dark-mode .field-select:focus,
+.dark-mode .field-textarea:focus,
+[data-theme="dark"] .field-input:focus,
+[data-theme="dark"] .field-select:focus,
+[data-theme="dark"] .field-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light), 0 0 12px rgba(56,189,248,0.08);
+  background: var(--bg-elevated);
+}
+.dark-mode .search-input:focus,
+[data-theme="dark"] .search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+  background: var(--bg-elevated);
+}
+
+/* Tags */
+.dark-mode .tag,
+[data-theme="dark"] .tag {
+  background: var(--bg-elevated);
+  border-color: var(--border-md);
+  color: var(--text-sec);
+}
+
+/* Complexity pills */
+.dark-mode .cp-time,
+[data-theme="dark"] .cp-time {
+  color: var(--accent);
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+}
+
+/* FAB — precise, stands out cleanly */
+.dark-mode .edit-fab,
+[data-theme="dark"] .edit-fab {
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+  color: var(--text-sec);
+  box-shadow: var(--shadow-lg);
+}
+.dark-mode .edit-fab:hover,
+[data-theme="dark"] .edit-fab:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: var(--shadow-lg), 0 0 16px rgba(56,189,248,0.12);
+}
+.dark-mode .edit-fab.editing,
+[data-theme="dark"] .edit-fab.editing {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0C0D0F;
+  box-shadow: var(--shadow-md), 0 0 20px rgba(56,189,248,0.25);
+}
+
+/* Active state: focused glow on selected items */
+.dark-mode [contenteditable]:focus,
+[data-theme="dark"] [contenteditable]:focus {
+  background: rgba(56,189,248,0.06);
+  box-shadow: 0 0 0 2px var(--accent-border);
+}
+
+/* Inline toolbar */
+.dark-mode .inline-toolbar,
+[data-theme="dark"] .inline-toolbar {
+  background: var(--bg-elevated);
+  border-color: var(--border-md);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Block picker */
+.dark-mode .block-picker,
+[data-theme="dark"] .block-picker {
+  background: var(--bg-elevated);
+  border-color: var(--border-md);
+  box-shadow: var(--shadow-xl);
+}
+.dark-mode .bp-item:hover,
+[data-theme="dark"] .bp-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-pri);
+}
+.dark-mode .bp-icon,
+[data-theme="dark"] .bp-icon {
+  background: var(--bg-surface);
+}
+
+/* Context menu */
+.dark-mode .ctx-menu,
+[data-theme="dark"] .ctx-menu {
+  background: var(--bg-elevated);
+  border-color: var(--border-md);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Modal */
+.dark-mode .modal,
+.dark-mode .delete-modal,
+[data-theme="dark"] .modal,
+[data-theme="dark"] .delete-modal {
+  background: var(--bg-elevated);
+  border-color: var(--border-md);
+}
+
+/* Related notes */
+.dark-mode .related-box,
+[data-theme="dark"] .related-box {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+.dark-mode .rel-link,
+[data-theme="dark"] .rel-link {
+  background: var(--bg-elevated);
+  border-color: var(--border-md);
+  color: var(--text-sec);
+}
+.dark-mode .rel-link:hover,
+[data-theme="dark"] .rel-link:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* Smart paste */
+.dark-mode .smart-paste-zone,
+[data-theme="dark"] .smart-paste-zone {
+  background: var(--bg-surface);
+  border-color: var(--border-md);
+}
+.dark-mode .smart-paste-zone:hover,
+[data-theme="dark"] .smart-paste-zone:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.dark-mode .smart-paste-zone.has-content,
+[data-theme="dark"] .smart-paste-zone.has-content {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+
+/* Editor pane */
+.dark-mode .editor-pane,
+[data-theme="dark"] .editor-pane {
+  background: var(--bg-sidebar);
+  border-left-color: var(--border);
+}
+.dark-mode .editor-header,
+.dark-mode .editor-tabs,
+.dark-mode .editor-footer,
+[data-theme="dark"] .editor-header,
+[data-theme="dark"] .editor-tabs,
+[data-theme="dark"] .editor-footer {
+  border-color: var(--border);
+}
+
+/* Generating overlay */
+.dark-mode .gen-overlay,
+[data-theme="dark"] .gen-overlay {
+  background: rgba(12,13,15,0.9);
+}
+
+/* Notification toast */
+.dark-mode .notif,
+[data-theme="dark"] .notif {
+  background: var(--bg-elevated);
+  color: var(--text-pri);
+  border: 1px solid var(--border-md);
+}
+
+/* Active tree row type-btn */
+.dark-mode .type-btn.selected,
+[data-theme="dark"] .type-btn.selected {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+/* Folder card icon */
+.dark-mode .folder-card-icon,
+[data-theme="dark"] .folder-card-icon {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* Add block / section buttons */
+.dark-mode .add-block-btn:hover,
+[data-theme="dark"] .add-block-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+.dark-mode .add-section-btn:hover,
+[data-theme="dark"] .add-section-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* Section del btn */
+.dark-mode .section-del-btn:hover,
+[data-theme="dark"] .section-del-btn:hover {
+  background: var(--red-light);
+  color: var(--red);
+  border-color: rgba(248,81,73,0.3);
+}
+
+/* Parse preview */
+.dark-mode .parse-preview,
+[data-theme="dark"] .parse-preview {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+
+/* Prose / steps blocks (manual notes) */
+.dark-mode .prose-block,
+.dark-mode .steps-block,
+[data-theme="dark"] .prose-block,
+[data-theme="dark"] .steps-block {
+  background: var(--bg-surface);
+}
+.dark-mode .step-num,
+[data-theme="dark"] .step-num {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* Scrollbar for dark */
+.dark-mode ::-webkit-scrollbar-thumb,
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+}
+.dark-mode ::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+
+/* ── Theme toggle button ── */
+.theme-toggle {
+  width: 30px; height: 30px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-md);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--t-fast);
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  background: var(--bg-hover);
+  color: var(--text-pri);
+  border-color: var(--border-strong);
+}
+.dark-mode .theme-toggle,
+[data-theme="dark"] .theme-toggle {
+  border-color: var(--border-md);
+  color: var(--text-muted);
+}
+.dark-mode .theme-toggle:hover,
+[data-theme="dark"] .theme-toggle:hover {
+  background: var(--bg-elevated);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+
+/* ══════════════════════════════════════
+   Drag & Drop + Move to folder
+══════════════════════════════════════ */
+
+/* Draggable rows */
+.tree-row[draggable="true"] { cursor: grab; }
+.tree-row[draggable="true"]:active { cursor: grabbing; }
+
+/* Drag ghost — the floating preview while dragging */
+.drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  background: var(--bg-elevated, #1C2128);
+  border: 1px solid var(--accent, #38BDF8);
+  border-radius: var(--r-md, 6px);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  color: var(--accent, #38BDF8);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.08s;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.drag-ghost.show { opacity: 1; }
+.drag-ghost-icon { font-size: 13px; flex-shrink: 0; }
+
+/* Drop target highlight */
+.tree-row.drop-target {
+  background: var(--accent-light, rgba(56,189,248,0.1)) !important;
+  outline: 1.5px solid var(--accent, #38BDF8) !important;
+  outline-offset: -1px;
+  border-radius: var(--r-md, 6px);
+}
+.tree-row.drop-target .tree-label { color: var(--accent, #38BDF8); }
+
+/* Drop zone between items — thin line indicator */
+.drop-between {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--accent, #38BDF8);
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 0 6px rgba(56,189,248,0.4);
+  display: none;
+}
+.drop-between.show { display: block; }
+
+/* Drag source dimmed */
+.tree-row.dragging {
+  opacity: 0.4;
+}
+
+/* Move to modal */
+.move-modal {
+  background: var(--bg-surface, #FFFFFF);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-xl, 14px);
+  width: 420px;
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-xl);
+  animation: modal-in 0.18s ease;
+  overflow: hidden;
+}
+
+.move-modal-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.move-modal-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--text-pri);
+  margin-bottom: 3px;
+}
+.move-modal-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.move-modal-search {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.move-modal-search input {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-pri);
+  font-size: 13px;
+  font-family: var(--font-ui);
+  outline: none;
+  transition: border-color var(--t-fast);
+}
+.move-modal-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.move-modal-search input::placeholder { color: var(--text-placeholder); }
+
+.move-folder-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 8px;
+}
+
+.move-folder-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-sec);
+  transition: background var(--t-fast), color var(--t-fast);
+  user-select: none;
+}
+.move-folder-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-pri);
+}
+.move-folder-item.selected {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.move-folder-item.current {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.move-folder-item .mf-icon {
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.move-folder-item .mf-icon svg {
+  width: 14px; height: 14px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.move-folder-item.selected .mf-icon { color: var(--accent); }
+.move-folder-item .mf-path {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: auto;
+  flex-shrink: 0;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.move-folder-empty {
+  padding: 28px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.move-modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 8px;
+}
+.move-breadcrumb {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.move-breadcrumb span { color: var(--accent); font-weight: 500; }
+
+/* Dark mode adjustments */
+.dark-mode .move-modal,
+[data-theme="dark"] .move-modal {
+  background: var(--bg-elevated);
+  border-color: var(--border-md);
+}
+.dark-mode .move-modal-search input,
+[data-theme="dark"] .move-modal-search input {
+  background: var(--bg-input);
+  color: var(--text-pri);
+}
+.dark-mode .drag-ghost,
+[data-theme="dark"] .drag-ghost {
+  background: var(--bg-elevated);
+}
+
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-mark"><svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="4.5" rx="5.5" ry="2"/><path d="M2.5 4.5V8c0 1.1 2.46 2 5.5 2s5.5-.9 5.5-2V4.5"/><path d="M2.5 8v3.5c0 1.1 2.46 2 5.5 2s5.5-.9 5.5-2V8"/></svg></div>
+      DevVault
+    </div>
+  </div>
+  <div class="sidebar-actions">
+    <button class="btn-new" onclick="openFolderModal(null)">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Folder
+    </button>
+    <button class="btn-new" onclick="openNoteEditor(null)">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Note
+    </button>
+  </div>
+  <div class="sidebar-search">
+    <div class="search-wrap">
+      <span class="search-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10l3 3"/></svg></span>
+      <input class="search-input" id="searchInput" placeholder="Search notes..." oninput="handleSearch(this.value)">
+    </div>
+  </div>
+  <div class="sidebar-section-label">Library</div><div class="tree-scroll" id="treeEl"></div>
+</div>
+
+<!-- Main -->
+<div class="main" id="mainArea">
+  <div class="topbar">
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="bc-cur">DevVault</span>
+    </div>
+    <div class="topbar-actions" id="topbarActions"></div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <svg id="themeIconSun" width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="display:none;">
+        <circle cx="7.5" cy="7.5" r="3"/>
+        <path d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M3.11 3.11l1.06 1.06M10.83 10.83l1.06 1.06M3.11 11.89l1.06-1.06M10.83 4.17l1.06-1.06"/>
+      </svg>
+      <svg id="themeIconMoon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+        <path d="M12.5 9.5A6 6 0 014.5 1.5a6 6 0 108 8z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="content-area">
+    <!-- Welcome -->
+    <div class="view-pane active" id="welcomePane">
+      <div class="welcome-state">
+        <div class="welcome-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h3.172a2 2 0 011.414.586l.828.828A2 2 0 0011.828 7H17a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg></div>
+        <h2>Welcome to DevVault</h2>
+        <p>Your personal knowledge base. Create folders, add notes, paste code — everything becomes a beautiful page.</p>
+        <button class="btn-primary" style="margin-top:8px;" onclick="openFolderModal(null)">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Create your first folder
+        </button>
+      </div>
+    </div>
+
+    <!-- Folder view -->
+    <div class="view-pane" id="folderPane">
+      <div id="folderContent"></div>
+    </div>
+
+    <!-- Note view -->
+    <div class="view-pane" id="notePane">
+      <div class="rendered-note" id="noteWrapper" style="max-width:760px; position:relative;">
+        <!-- Rendered content -->
+        <div id="noteContent"></div>
+        <!-- Add section (visible in edit mode) -->
+        <div style="display:none;" class="add-section-row" id="addSectionRow">
+          <button class="add-section-btn" onclick="addNewSection()">+ Add section</button>
+        </div>
+      </div>
+      <!-- Floating edit/done button -->
+      <button class="edit-fab" id="editFab" onclick="toggleEditMode()">
+        <svg id="editFabIcon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5a2.121 2.121 0 013 3L5 15H2v-3L11.5 2.5z"/></svg>
+        <span id="editFabLabel" style="display:none;"></span>
+      </button>
+    </div>
+
+    <!-- Editor pane -->
+    <div class="editor-pane" id="editorPane">
+      <div class="editor-header">
+        <span class="editor-title" id="editorTitle">New Note</span>
+        <button class="editor-close" onclick="closeEditor()">✕</button>
+      </div>
+      <div class="editor-tabs">
+        <button class="editor-tab active" id="tabManual" onclick="switchTab('manual')">✏ Manual</button>
+        <button class="editor-tab" id="tabSmart" onclick="switchTab('smart')">⚡ Smart Paste</button>
+      </div>
+
+      <!-- Manual tab -->
+      <div id="panelManual" class="editor-fields">
+        <div>
+          <div class="field-label">Title</div>
+          <input class="field-input" id="noteTitle" placeholder="e.g. Two Pointers — Sliding Window">
+        </div>
+        <div>
+          <div class="field-label">Folder</div>
+          <select class="field-select" id="noteFolderSel"></select>
+        </div>
+        <div>
+          <div class="field-label">Type</div>
+          <div class="type-selector" id="typeSel">
+            <button class="type-btn selected" data-type="algorithm" onclick="selectType(this)">⚡ Algorithm</button>
+            <button class="type-btn" data-type="concept" onclick="selectType(this)">💡 Concept</button>
+            <button class="type-btn" data-type="problem" onclick="selectType(this)">🎯 Problem</button>
+            <button class="type-btn" data-type="reference" onclick="selectType(this)">📖 Reference</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Your thoughts / explanation</div>
+          <textarea class="field-textarea" id="noteThoughts" placeholder="Write your understanding, approach, intuition..." style="min-height:100px;"></textarea>
+        </div>
+        <div>
+          <div class="field-label">Code</div>
+          <textarea class="field-textarea field-code" id="noteCode" placeholder="Paste your solution here..."></textarea>
+        </div>
+        <div>
+          <div class="field-label">Language</div>
+          <select class="field-select" id="noteLang">
+            <option value="java">Java</option>
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="cpp">C++</option>
+            <option value="go">Go</option>
+            <option value="sql">SQL</option>
+            <option value="bash">Bash</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">Additional notes</div>
+          <textarea class="field-textarea" id="pasteContent" placeholder="Paste extra content, links, explanations..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;">
+            <div class="field-label">Time complexity</div>
+            <input class="field-input" id="timeComp" placeholder="O(n)">
+          </div>
+          <div style="flex:1;">
+            <div class="field-label">Space complexity</div>
+            <input class="field-input" id="spaceComp" placeholder="O(1)">
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Tags (comma separated)</div>
+          <input class="field-input" id="noteTags" placeholder="two-pointers, sliding-window, array">
+        </div>
+      </div>
+
+      <!-- Smart Paste tab -->
+      <div id="panelSmart" class="smart-paste-wrap" style="display:none;">
+        <div>
+          <div class="field-label">Folder</div>
+          <select class="field-select" id="smartFolderSel" style="width:100%;"></select>
+        </div>
+        <div class="smart-paste-zone" id="smartZone" onclick="activateSmartPaste()">
+          <div class="spz-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="2" width="14" height="16" rx="2"/><path d="M7 7h6M7 10h6M7 13h4"/></svg></div>
+          <div class="spz-title">Paste your markdown / notes</div>
+          <div class="spz-sub">Paste anything — full markdown doc, code, your explanation. DevVault parses everything automatically.</div>
+          <div class="spz-shortcut">Ctrl+V / ⌘+V anywhere here</div>
+        </div>
+        <textarea class="smart-paste-textarea" id="smartPasteInput" placeholder="Or type / paste your content here..." oninput="onSmartPasteInput(this.value)"></textarea>
+        <div class="parse-preview" id="parsePreview">
+          <div class="pp-title">📊 Detected</div>
+          <div class="pp-item"><span class="pp-key">Title</span><span class="pp-val good" id="ppTitle">—</span></div>
+          <div class="pp-item"><span class="pp-key">Sections</span><span class="pp-val good" id="ppSections">—</span></div>
+          <div class="pp-item"><span class="pp-key">Code blocks</span><span class="pp-val good" id="ppCode">—</span></div>
+          <div class="pp-item"><span class="pp-key">Complexity</span><span class="pp-val" id="ppComplexity">—</span></div>
+          <div class="pp-item"><span class="pp-key">Tags</span><span class="pp-val" id="ppTags">—</span></div>
+        </div>
+      </div>
+
+      <div class="editor-footer">
+        <button class="btn-primary" style="flex:1;" id="genBtn" onclick="handleGenerate()">
+          <div class="ai-dot" style="width:6px;height:6px;"></div>
+          Generate Page
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generating overlay -->
+  <div class="gen-overlay" id="genOverlay">
+    <div class="gen-spinner"></div>
+    <div class="gen-text">Rendering your page...</div>
+    <div class="gen-sub">Turning notes into something beautiful</div>
+  </div>
+</div>
+
+<!-- Folder Modal -->
+<div class="modal-overlay" id="folderModal">
+  <div class="modal">
+    <div class="modal-title" id="folderModalTitle">Create Folder</div>
+    <div class="modal-desc" id="folderModalDesc">Name your folder. Nest it inside another if you'd like.</div>
+    <div>
+      <div class="field-label">Name</div>
+      <input class="field-input" id="folderName" placeholder="e.g. Arrays, Dynamic Programming..." style="width:100%;">
+    </div>
+    <div id="folderParentRow" style="margin-top:12px;">
+      <div class="field-label">Parent folder</div>
+      <select class="field-select" id="folderParent" style="width:100%;"></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeFolderModal()">Cancel</button>
+      <button class="btn-primary" id="folderModalBtn" onclick="confirmFolderModal()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="delete-modal">
+    <div class="modal-title">⚠ Delete <span id="deleteTarget"></span></div>
+    <div class="modal-desc" id="deleteDesc" style="margin-top:6px;"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Context menu -->
+<div class="ctx-menu" id="ctxMenu">
+  <div class="ctx-item" id="ctxRename" onclick="ctxRename()">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1.5a1.414 1.414 0 012 2L3.5 11.5H1v-2.5L9 1.5z"/></svg>
+    Rename
+  </div>
+  <div class="ctx-item" id="ctxMove" onclick="ctxMove()">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5h9M7.5 3l3.5 3.5L7.5 10"/></svg>
+    Move to
+  </div>
+  <div class="ctx-item" id="ctxAddSub" onclick="ctxAddSub()">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 3A.5.5 0 012 2.5h2.5l1 1H11a.5.5 0 01.5.5v6a.5.5 0 01-.5.5H2a.5.5 0 01-.5-.5V3z"/></svg>
+    Add subfolder
+  </div>
+  <div class="ctx-item" id="ctxAddNote" onclick="ctxAddNote()">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="9" height="11" rx="1"/><path d="M4.5 4.5h4M4.5 6.5h4M4.5 8.5h2"/></svg>
+    Add note
+  </div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item danger" onclick="ctxDelete()">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h9M8 4V2.5a.5.5 0 00-.5-.5h-2a.5.5 0 00-.5.5V4M5.5 6v3.5M7.5 6v3.5M3 4l.5 6a.5.5 0 00.5.5h5a.5.5 0 00.5-.5L10 4"/></svg>
+    Delete
+  </div>
+</div>
+
+<!-- Notification -->
+<div class="notif" id="notif">
+  <div class="notif-dot success" id="notifDot"></div>
+  <span id="notifText"></span>
+</div>
+
+
+
+<!-- Block picker -->
+<div class="block-picker" id="blockPicker">
+  <div class="bp-label">Add block</div>
+  <div class="bp-item" onclick="insertBlock('text')"><div class="bp-icon">¶</div><span>Text paragraph</span></div>
+  <div class="bp-item" onclick="insertBlock('h3')"><div class="bp-icon"><b>H</b></div><span>Subheading</span></div>
+  <div class="bp-item" onclick="insertBlock('bullet')"><div class="bp-icon">•</div><span>Bullet list</span></div>
+  <div class="bp-item" onclick="insertBlock('numbered')"><div class="bp-icon">1.</div><span>Numbered list</span></div>
+  <div class="bp-sep"></div>
+  <div class="bp-item" onclick="insertBlock('code')"><div class="bp-icon" style="font-family:var(--font-code);font-size:11px;">&lt;/&gt;</div><span>Code block</span></div>
+  <div class="bp-item" onclick="insertBlock('image')"><div class="bp-icon">🖼</div><span>Image</span></div>
+  <div class="bp-sep"></div>
+  <div class="bp-item" onclick="insertBlock('blockquote')"><div class="bp-icon">"</div><span>Blockquote</span></div>
+  <div class="bp-item" onclick="insertBlock('divider')"><div class="bp-icon">—</div><span>Divider</span></div>
+</div>
+
+
+<!-- Move to folder modal -->
+<div class="modal-overlay" id="moveModal">
+  <div class="move-modal">
+    <div class="move-modal-header">
+      <div class="move-modal-title" id="moveModalTitle">Move to folder</div>
+      <div class="move-modal-sub" id="moveModalSub">Select a destination folder</div>
+    </div>
+    <div class="move-modal-search">
+      <input type="text" id="moveFolderSearch" placeholder="Search folders..." oninput="filterMoveFolders(this.value)">
+    </div>
+    <div class="move-folder-list" id="moveFolderList"></div>
+    <div class="move-modal-footer">
+      <div class="move-breadcrumb" id="moveBreadcrumb">No folder selected</div>
+      <button class="btn-ghost" onclick="closeMoveModal()">Cancel</button>
+      <button class="btn-primary" id="moveConfirmBtn" onclick="confirmMove()" disabled>Move here</button>
+    </div>
+  </div>
+</div>
+
+<!-- Drag ghost element -->
+<div class="drag-ghost" id="dragGhost">
+  <span class="drag-ghost-icon" id="dragGhostIcon"></span>
+  <span id="dragGhostLabel"></span>
+</div>
+
+
+<script>
+// ══════════════════════════════════════════════
+//  DevVault — Complete JS
+// ══════════════════════════════════════════════
+
+// ── Storage ──
+const STORAGE_KEY = 'devvault_data';
+function loadState() {
+  try { const r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r); } catch(e){}
+  return { folders: [], notes: [] };
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ folders: state.folders, notes: state.notes })); } catch(e){}
+}
+
+// ── State ──
+const _p = loadState();
+const state = {
+  folders: _p.folders,
+  notes: _p.notes,
+  openFolders: new Set(),
+  activeId: null,
+  activeType: null,
+  selectedType: 'algorithm',
+  editingNoteId: null,
+  ctxTarget: null,
+  ctxTargetType: null,
+  deleteId: null,
+  deleteType: null,
+  activeTab: 'manual',
+};
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// ── Utilities ──
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function highlightCode(code, lang) {
+  let s = String(code).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if (lang === 'java' || lang === 'cpp') {
+    s = s.replace(/\/\*[\s\S]*?\*\//g, m => '<span class="cm">'+m+'</span>');
+    s = s.replace(/\/\/[^\n]*/g, m => '<span class="cm">'+m+'</span>');
+    s = s.replace(/"([^"\n]*)"/g, (_, i) => '<span class="str">"'+i+'"</span>');
+    s = s.replace(/\b(int|long|double|float|char|byte|short|boolean|void|return|if|else|for|while|do|new|class|public|private|protected|static|final|abstract|interface|extends|implements|this|super|null|true|false|import|package|throw|throws|try|catch|finally|instanceof|enum|String)\b/g, '<span class="kw">$1</span>');
+    s = s.replace(/\b([A-Z][a-zA-Z0-9]*)\b/g, '<span class="tp">$1</span>');
+    s = s.replace(/\b(\d+(?:\.\d+)?[LlFfDd]?)\b/g, '<span class="num">$1</span>');
+  } else if (lang === 'python') {
+    s = s.replace(/#[^\n]*/g, m => '<span class="cm">'+m+'</span>');
+    s = s.replace(/"([^"\n]*)"/g, (_, i) => '<span class="str">"'+i+'"</span>');
+    s = s.replace(/'([^'\n]*)'/g, (_, i) => "<span class=\"str\">'"+i+"'</span>");
+    s = s.replace(/\b(def|class|return|if|elif|else|for|while|import|from|as|in|not|and|or|is|None|True|False|pass|break|continue|with|try|except|finally|raise|lambda|yield|global|nonlocal|del|assert|self)\b/g, '<span class="kw">$1</span>');
+    s = s.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="num">$1</span>');
+  } else if (lang === 'javascript' || lang === 'js') {
+    s = s.replace(/\/\*[\s\S]*?\*\//g, m => '<span class="cm">'+m+'</span>');
+    s = s.replace(/\/\/[^\n]*/g, m => '<span class="cm">'+m+'</span>');
+    s = s.replace(/"([^"\n]*)"/g, (_, i) => '<span class="str">"'+i+'"</span>');
+    s = s.replace(/'([^'\n]*)'/g, (_, i) => "<span class=\"str\">'"+i+"'</span>");
+    s = s.replace(/\b(const|let|var|function|return|if|else|for|while|class|new|import|export|default|from|async|await|try|catch|finally|throw|true|false|null|undefined|this|typeof|instanceof|of|in)\b/g, '<span class="kw">$1</span>');
+    s = s.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="num">$1</span>');
+  } else if (lang === 'sql') {
+    s = s.replace(/--[^\n]*/g, m => '<span class="cm">'+m+'</span>');
+    s = s.replace(/'([^'\n]*)'/g, (_, i) => "<span class=\"str\">'"+i+"'</span>");
+    s = s.replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|OUTER|ON|GROUP|BY|ORDER|HAVING|LIMIT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|TABLE|INDEX|VIEW|AS|AND|OR|NOT|IN|BETWEEN|LIKE|IS|NULL|DISTINCT|COUNT|SUM|AVG|MIN|MAX)\b/gi, m => '<span class="kw">'+m+'</span>');
+  } else if (lang === 'go') {
+    s = s.replace(/\/\*[\s\S]*?\*\//g, m => '<span class="cm">'+m+'</span>');
+    s = s.replace(/\/\/[^\n]*/g, m => '<span class="cm">'+m+'</span>');
+    s = s.replace(/"([^"\n]*)"/g, (_, i) => '<span class="str">"'+i+'"</span>');
+    s = s.replace(/\b(func|var|const|type|struct|interface|package|import|return|if|else|for|range|switch|case|default|break|continue|go|chan|map|make|new|nil|true|false|defer|select|error|string|int|int64|bool|byte|rune|float64)\b/g, '<span class="kw">$1</span>');
+    s = s.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="num">$1</span>');
+  }
+  return s;
+}
+
+function extractSteps(thoughts) {
+  if (!thoughts) return [];
+  return thoughts.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 20).slice(0, 5);
+}
+
+function copyCode(elemId) {
+  const el = document.getElementById(elemId);
+  if (!el) return;
+  const wrap = el.closest ? el.closest('.ce-code-wrap') : null;
+  const ta = wrap ? wrap.querySelector('textarea') : null;
+  const text = (ta && ta.classList.contains('active')) ? ta.value : el.innerText;
+  navigator.clipboard.writeText(text).then(() => showNotif('Code copied!', 'success'))
+    .catch(() => { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); showNotif('Code copied!', 'success'); });
+}
+
+let _notifTimer;
+function showNotif(text, type) {
+  const el = document.getElementById('notif');
+  document.getElementById('notifText').textContent = text;
+  document.getElementById('notifDot').className = 'notif-dot ' + (type === 'success' ? 'success' : 'info');
+  el.classList.add('show');
+  clearTimeout(_notifTimer);
+  _notifTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── Markdown parser ──
+function parseMarkdown(text) {
+  const codeBlocks = [];
+  const codeRe = /```(\w*)\n([\s\S]*?)```/g;
+  let m;
+  while ((m = codeRe.exec(text)) !== null) codeBlocks.push({ lang: m[1] || 'java', code: m[2].trimEnd() });
+  const stripped = text.replace(/```[\s\S]*?```/g, '');
+  let title = '', curSection = null;
+  const sections = [];
+  for (const line of stripped.split('\n')) {
+    const h1 = line.match(/^#\s+(.+)/);
+    const h2 = line.match(/^##\s+(.+)/);
+    const h3 = line.match(/^###\s+(.+)/);
+    if (h1 && !title) { title = h1[1].trim(); continue; }
+    if (h2) { if (curSection) sections.push(curSection); curSection = { heading: h2[1].trim(), level:2, lines:[] }; continue; }
+    if (h3) { if (curSection) sections.push(curSection); curSection = { heading: h3[1].trim(), level:3, lines:[] }; continue; }
+    if (curSection) curSection.lines.push(line);
+    else if (!title && line.trim()) title = line.trim().replace(/^#+\s*/,'');
+  }
+  if (curSection) sections.push(curSection);
+  if (!title && sections.length > 0) title = sections[0].heading;
+  const noCode = text.replace(/```[\s\S]*?```/g,'');
+  const timeM = noCode.match(/[Tt]ime\s*(?:complexity)?[:\s]+`?([Oo]\([^)]+\))`?/);
+  const spaceM = noCode.match(/[Ss]pace\s*(?:complexity)?[:\s]+`?([Oo]\([^)]+\))`?/);
+  const tags = new Set();
+  const tagWords = (title+' '+sections.map(s=>s.heading).join(' ')).toLowerCase();
+  const tagMap = {'hashmap':['hashmap','hash map'],'two pointers':['two pointer','two-pointer'],'sliding window':['sliding window'],'binary search':['binary search'],'dynamic programming':['dynamic programming','dp'],'recursion':['recursion','recursive'],'bfs':['bfs','breadth first'],'dfs':['dfs','depth first'],'sorting':['sort','sorting'],'greedy':['greedy'],'array':['array'],'string':['string'],'tree':['tree'],'graph':['graph'],'stack':['stack'],'queue':['queue'],'heap':['heap'],'linked list':['linked list'],'trie':['trie']};
+  for (const [tag, kws] of Object.entries(tagMap)) { if (kws.some(kw=>tagWords.includes(kw))) tags.add(tag); }
+  return { title, sections, codeBlocks, timeComp: timeM?timeM[1]:'', spaceComp: spaceM?spaceM[1]:'', tags:[...tags] };
+}
+
+function inlineMarkdown(s) {
+  s = escHtml(s);
+  s = s.replace(/`([^`]+)`/g, '<code class="md-code-inline">$1</code>');
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong class="md-strong">$1</strong>');
+  s = s.replace(/\*([^*]+)\*/g, '<em class="md-em">$1</em>');
+  s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+  s = s.replace(/__(\S[^_]*)__/g, '<strong class="md-strong">$1</strong>');
+  return s;
+}
+
+function renderSectionLines(lines, codeBlocks, editable) {
+  let html = '', inUl = false, inOl = false, i = 0;
+  const ce = editable ? ' data-ce="true" contenteditable="false"' : '';
+  function closeList() {
+    if (inUl) { html += '</ul>'; inUl = false; }
+    if (inOl) { html += '</ol>'; inOl = false; }
+  }
+  while (i < lines.length) {
+    const line = lines[i];
+    // Stored image block
+    const imgMatch = line.match(/<!--img:(.+)-->/);
+    if (imgMatch) {
+      closeList();
+      const nextLine = lines[i+1] ? lines[i+1].trim() : '';
+      const caption = nextLine && !nextLine.startsWith('<!--') ? nextLine : '';
+      html += `<div class="md-image-block"><img src="${escHtml(imgMatch[1])}" alt="image"><div class="img-caption" contenteditable="false" style="outline:none;">${escHtml(caption)}</div></div>`;
+      if (caption) i++; // skip caption line
+      i++; continue;
+    }
+    const cbMatch = line.match(/__CODEBLOCK_(\d+)__/);
+    if (cbMatch) {
+      closeList();
+      const idx = parseInt(cbMatch[1]);
+      const cb = codeBlocks[idx];
+      if (cb) {
+        const cbId = 'cb_' + idx + '_' + Math.random().toString(36).slice(2,6);
+        html += `<div class="code-block"><div class="code-header"><span class="code-lang">${(cb.lang||'java').toUpperCase()}</span><button class="code-copy-btn" onclick="copyCode('${cbId}')">Copy</button></div><div class="ce-code-wrap"><div class="code-body" id="${cbId}" onclick="activateCodeEditor(event)">${highlightCode(cb.code, cb.lang||'java')}</div><textarea onblur="deactivateCodeEditor(this.closest('.ce-code-wrap'))" onkeydown="codeEditorKey(event)">${escHtml(cb.code)}</textarea></div></div>`;
+      }
+      i++; continue;
+    }
+    const h3 = line.match(/^###\s+(.+)/);
+    if (h3) { closeList(); html += `<div class="md-h3"${ce} style="outline:none;">${escHtml(h3[1])}</div>`; i++; continue; }
+    if (line.match(/^---+$/)) { closeList(); html += '<hr class="md-hr">'; i++; continue; }
+    if (line.startsWith('> ')) { closeList(); html += `<div class="md-blockquote"${ce} style="outline:none;">${inlineMarkdown(line.slice(2))}</div>`; i++; continue; }
+    const ulM = line.match(/^[*\-]\s+(.+)/);
+    if (ulM) {
+      if (!inUl) { if (inOl){html+='</ol>';inOl=false;} html+=`<ul class="md-ul"${ce} style="outline:none;">`; inUl=true; }
+      html += `<li>${inlineMarkdown(ulM[1])}</li>`; i++; continue;
+    }
+    const olM = line.match(/^\d+\.\s+(.+)/);
+    if (olM) {
+      if (!inOl) { if (inUl){html+='</ul>';inUl=false;} html+=`<ol class="md-ol"${ce} style="outline:none;">`; inOl=true; }
+      html += `<li>${inlineMarkdown(olM[1])}</li>`; i++; continue;
+    }
+    if (line.trim()) { closeList(); html += `<p class="md-p"${ce} style="outline:none;">${inlineMarkdown(line)}</p>`; }
+    i++;
+  }
+  closeList();
+  return html;
+}
+
+function renderParsedMarkdown(parsed, rawText, editable) {
+  editable = editable || false;
+  let codeIdx = 0;
+  const processed = rawText.replace(/```(\w*)\n([\s\S]*?)```/g, () => `__CODEBLOCK_${codeIdx++}__`);
+  codeIdx = 0;
+  let html = '', sectionBuf = [], sectionHeading = '';
+  const ce = editable ? ' data-ce="true" contenteditable="false"' : '';
+
+  function flushSection() {
+    if (!sectionHeading) return;
+    const numMatch = sectionHeading.match(/^(\d+)\.\s*/);
+    const num = numMatch ? numMatch[1] : null;
+    const cleanHeading = sectionHeading.replace(/^\d+\.\s*/,'');
+    html += `<div class="md-section">`;
+    html += `<button class="section-del-btn" onclick="deleteSection(this)" title="Delete section">✕</button>`;
+    html += `<div class="md-h2"${ce} style="outline:none;">`;
+    if (num) html += `<span class="md-section-num">${num}</span>`;
+    html += `${escHtml(cleanHeading)}</div>`;
+    html += renderSectionLines(sectionBuf, parsed.codeBlocks, editable);
+    html += `</div>`;
+    sectionBuf = []; sectionHeading = '';
+  }
+
+  for (const line of processed.split('\n')) {
+    const h1 = line.match(/^#\s+(.+)/);
+    const h2 = line.match(/^##\s+(.+)/);
+    if (h1) continue;
+    if (h2) { flushSection(); sectionHeading = h2[1].trim(); continue; }
+    sectionBuf.push(line);
+  }
+  flushSection();
+  return html;
+}
+
+// ── Tree rendering ──
+function renderTree(filterText) {
+  const el = document.getElementById('treeEl');
+  el.innerHTML = '';
+  if (filterText) {
+    const q = filterText.toLowerCase();
+    const matched = state.notes.filter(n => n.title.toLowerCase().includes(q)||(n.thoughts||'').toLowerCase().includes(q)||(n.tags||[]).join(',').includes(q));
+    if (matched.length === 0) { el.innerHTML = `<div style="padding:16px;text-align:center;font-size:12px;color:var(--text-muted);">No results</div>`; return; }
+    matched.forEach(note => renderNoteRow(note, el, 0));
+    return;
+  }
+  state.folders.filter(f => !f.parentId).forEach(f => renderFolderRow(f, el, 0));
+}
+
+function renderFolderRow(folder, container, depth) {
+  const children = state.folders.filter(f => f.parentId === folder.id);
+  const notes = state.notes.filter(n => n.folderId === folder.id);
+  const isOpen = state.openFolders.has(folder.id);
+  const isActive = state.activeId === folder.id && state.activeType === 'folder';
+  const total = children.length + notes.length;
+  const wrap = document.createElement('div');
+  const row = document.createElement('div');
+  row.className = 'tree-row' + (isActive ? ' active' : '');
+  row.style.paddingLeft = (10 + depth * 14) + 'px';
+  const arrowSvg = `<svg viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
+  const folderSvg = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 3.5A1 1 0 012.5 2.5h3.086a1 1 0 01.707.293L7.5 4.5H13.5a1 1 0 011 1v7a1 1 0 01-1 1h-11a1 1 0 01-1-1v-7.5z"/></svg>`;
+  row.innerHTML = `<span class="tree-arrow ${isOpen?'open':''}" style="${total===0?'visibility:hidden':''}">${arrowSvg}</span><span class="tree-icon">${folderSvg}</span><span class="tree-label">${escHtml(folder.name)}</span>${total>0?`<span class="tree-count">${total}</span>`:''}<button class="tree-ctx-btn" onclick="openCtxMenu(event,'${folder.id}','folder')">···</button>`;
+  row.addEventListener('click', e => { if (e.target.classList.contains('tree-ctx-btn')) return; toggleFolder(folder); });
+  row.addEventListener('contextmenu', e => { e.preventDefault(); openCtxMenu(e, folder.id, 'folder'); });
+  // Drag: folder can be dragged and is a drop target
+  addDragEvents(row, folder.id, 'folder', folder.name);
+  addDropZoneEvents(row, folder.id);
+  wrap.appendChild(row);
+  if (isOpen) {
+    const childWrap = document.createElement('div');
+    children.forEach(ch => renderFolderRow(ch, childWrap, depth+1));
+    notes.forEach(n => renderNoteRow(n, childWrap, depth+1));
+    wrap.appendChild(childWrap);
+  }
+  container.appendChild(wrap);
+}
+
+function renderNoteRow(note, container, depth) {
+  const isActive = state.activeId === note.id && state.activeType === 'note';
+  const noteSvg = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3"/></svg>`;
+  const row = document.createElement('div');
+  row.className = 'tree-row' + (isActive ? ' active' : '');
+  row.style.paddingLeft = (10 + depth * 14) + 'px';
+  row.innerHTML = `<span class="tree-arrow" style="visibility:hidden"><svg viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span><span class="tree-icon">${noteSvg}</span><span class="tree-label">${escHtml(note.title)}</span><button class="tree-ctx-btn" onclick="openCtxMenu(event,'${note.id}','note')">···</button>`;
+  row.addEventListener('click', e => { if (e.target.classList.contains('tree-ctx-btn')) return; state.activeId=note.id; state.activeType='note'; renderTree(); showNoteView(note); });
+  row.addEventListener('contextmenu', e => { e.preventDefault(); openCtxMenu(e, note.id, 'note'); });
+  // Notes are draggable but not drop targets
+  addDragEvents(row, note.id, 'note', note.title);
+  container.appendChild(row);
+}
+
+function toggleFolder(folder) {
+  if (state.openFolders.has(folder.id)) state.openFolders.delete(folder.id);
+  else state.openFolders.add(folder.id);
+  state.activeId = folder.id; state.activeType = 'folder';
+  renderTree(); showFolderView(folder);
+}
+
+// ── Views ──
+function setPanes(active) {
+  ['welcomePane','folderPane','notePane'].forEach(id => document.getElementById(id).classList.remove('active'));
+  if (active) document.getElementById(active+'Pane').classList.add('active');
+  const fab = document.getElementById('editFab');
+  if (active !== 'note') fab.classList.remove('visible');
+}
+
+function showFolderView(folder) {
+  setPanes('folder');
+  const subfolders = state.folders.filter(f => f.parentId === folder.id);
+  const notes = state.notes.filter(n => n.folderId === folder.id);
+  const total = countNotesDeep(folder.id);
+  let html = `<div class="folder-header"><div class="folder-title"><span>${folder.icon||'📁'}</span>${escHtml(folder.name)}</div><div class="folder-meta"><span>${subfolders.length} subfolder${subfolders.length!==1?'s':''}</span><span class="meta-sep">·</span><span>${total} note${total!==1?'s':''} total</span></div></div>`;
+  if (subfolders.length>0) {
+    html += `<div class="section-block"><div class="section-label">Subfolders</div><div class="cards-grid">`;
+    subfolders.forEach(sf => { const nc=countNotesDeep(sf.id); html+=`<div class="folder-card" onclick="clickFolder('${sf.id}')"><div class="folder-card-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 3.5A1 1 0 012.5 2.5h3.086a1 1 0 01.707.293L7.5 4.5H13.5a1 1 0 011 1v7a1 1 0 01-1 1h-11a1 1 0 01-1-1v-7.5z"/></svg></div><div class="folder-card-name">${escHtml(sf.name)}</div><div class="folder-card-count">${nc} note${nc!==1?'s':''}</div></div>`; });
+    html += `</div></div>`;
+  }
+  if (notes.length>0) {
+    html += `<div class="section-block"><div class="section-label">Notes</div><div class="cards-grid">`;
+    notes.forEach(note => {
+      const typeLabel={algorithm:'Algorithm',concept:'Concept',problem:'Problem',reference:'Reference'}[note.type]||'Note';
+      const preview=(note.thoughts||note.pasteContent||'').slice(0,90);
+      const tagsHtml=(note.tags||[]).slice(0,3).map(t=>`<span class="tag">${escHtml(t)}</span>`).join('');
+      html+=`<div class="note-card" onclick="clickNote('${note.id}')"><div class="note-card-type">${typeLabel}</div><div class="note-card-title">${escHtml(note.title)}</div>${preview?`<div class="note-card-preview">${escHtml(preview)}...</div>`:''}<div class="note-card-tags">${tagsHtml}</div></div>`;
+    });
+    html += `</div></div>`;
+  }
+  if (subfolders.length===0&&notes.length===0) html+=`<div class="empty-folder"><div class="empty-folder-icon"><svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="28" height="30" rx="3"/><path d="M12 12h12M12 18h12M12 24h8"/></svg></div><div style="font-size:13px;color:var(--text-sec);font-weight:500;">This folder is empty</div><div style="margin-top:4px;font-size:12px;">Add a note or subfolder to get started</div></div>`;
+  document.getElementById('folderContent').innerHTML = html;
+  document.getElementById('topbarActions').innerHTML = `<button class="btn-ghost" onclick="openFolderModal('${folder.id}')">New folder</button><button class="btn-primary" onclick="openNoteEditor('${folder.id}')">New note</button>`;
+  updateBreadcrumb(folder, null);
+}
+
+function showNoteView(note) {
+  setPanes('note');
+  const typeLabel={algorithm:'Algorithm',concept:'Concept',problem:'Problem',reference:'Reference'}[note.type]||'Note';
+  const typeIcon={algorithm:'⚡',concept:'💡',problem:'🎯',reference:'📖'}[note.type]||'📝';
+  const tagsHtml=(note.tags||[]).map(t=>`<span class="tag">${escHtml(t)}</span>`).join('');
+
+  let html = `<div class="note-hero"><div class="note-hero-top"><span class="ai-badge"><div class="ai-dot"></div> Rendered</span><span class="note-type-badge">${typeIcon} ${typeLabel}</span></div><div class="note-title-big" data-ce="true" contenteditable="false" style="outline:none;">${escHtml(note.title)}</div><div class="note-desc">A structured breakdown — your approach, code, and thinking in one place.</div><div class="note-tags-row">${tagsHtml}</div></div>`;
+
+  if (note.timeComp||note.spaceComp) {
+    html+=`<div class="complexity-row">`;
+    if (note.timeComp) html+=`<div class="complexity-pill cp-time">⏱ Time: ${escHtml(note.timeComp)}</div>`;
+    if (note.spaceComp) html+=`<div class="complexity-pill cp-space">📦 Space: ${escHtml(note.spaceComp)}</div>`;
+    html+=`</div>`;
+  }
+
+  if (note.parsed && note.rawMarkdown) {
+    const parsed = parseMarkdown(note.rawMarkdown);
+    html += renderParsedMarkdown(parsed, note.rawMarkdown, true);
+  } else {
+    if (note.thoughts) html+=`<div class="prose-block"><div class="block-label">Intuition &amp; Approach</div><div class="prose-text"><p>${escHtml(note.thoughts).replace(/\n/g,'</p><p>')}</p></div></div>`;
+    const steps = extractSteps(note.thoughts);
+    if (steps.length>=2) { html+=`<div class="steps-block"><div class="block-label" style="margin-bottom:12px;">Step-by-step breakdown</div>`; steps.forEach((s,i)=>{ html+=`<div class="step-item"><div class="step-num">${i+1}</div><div class="step-text">${escHtml(s)}</div></div>`; }); html+=`</div>`; }
+    if (note.code) { const lang=note.lang||'java'; const cbId='code_'+note.id; html+=`<div class="code-block"><div class="code-header"><span class="code-lang">${lang.toUpperCase()}</span><button class="code-copy-btn" onclick="copyCode('${cbId}')">Copy</button></div><div class="ce-code-wrap"><div class="code-body" id="${cbId}" onclick="activateCodeEditor(event)">${highlightCode(note.code,lang)}</div><textarea onblur="deactivateCodeEditor(this.closest('.ce-code-wrap'))" onkeydown="codeEditorKey(event)">${escHtml(note.code)}</textarea></div></div>`; }
+    if (note.pasteContent) html+=`<div class="prose-block"><div class="block-label">Additional Notes</div><div class="prose-text"><p>${escHtml(note.pasteContent).replace(/\n/g,'</p><p>')}</p></div></div>`;
+  }
+
+  const siblings = state.notes.filter(n=>n.folderId===note.folderId&&n.id!==note.id);
+  const folder = state.folders.find(f=>f.id===note.folderId);
+  if (siblings.length>0) html+=`<div class="related-box"><div class="related-title">More in ${folder?escHtml(folder.name):'this folder'}</div><div class="related-links">${siblings.slice(0,5).map(s=>`<div class="rel-link" onclick="clickNote('${s.id}')">${escHtml(s.title)}</div>`).join('')}</div></div>`;
+
+  document.getElementById('noteContent').innerHTML = html;
+  document.getElementById('topbarActions').innerHTML = '';
+  updateBreadcrumb(null, note);
+  const wrapper = document.getElementById('noteWrapper');
+  wrapper.dataset.noteId = note.id;
+  _editModeActive = false;
+  _currentNoteId = note.id;
+  const fab = document.getElementById('editFab');
+  fab.classList.add('visible');
+  fab.classList.remove('editing');
+  document.getElementById('editFabIcon').innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5a2.121 2.121 0 013 3L5 15H2v-3L11.5 2.5z"/></svg>';
+  document.getElementById('editFabLabel').textContent = 'Edit';
+}
+
+function clickFolder(id) {
+  const folder = state.folders.find(f=>f.id===id);
+  if (!folder) return;
+  state.openFolders.add(id);
+  let cur = folder;
+  while (cur.parentId) { state.openFolders.add(cur.parentId); cur = state.folders.find(f=>f.id===cur.parentId)||{}; }
+  state.activeId = id; state.activeType = 'folder';
+  renderTree(); showFolderView(folder);
+}
+
+function clickNote(id) {
+  const note = state.notes.find(n=>n.id===id);
+  if (!note) return;
+  state.activeId = id; state.activeType = 'note';
+  renderTree(); showNoteView(note);
+}
+
+function updateBreadcrumb(folder, note) {
+  const el = document.getElementById('breadcrumb');
+  let html = `<span class="bc-link" onclick="goHome()">DevVault</span>`;
+  if (note) {
+    const f = state.folders.find(x=>x.id===note.folderId);
+    getAncestors(f||{}).forEach(a=>{ html+=`<span class="bc-sep">›</span><span class="bc-link" onclick="clickFolder('${a.id}')">${escHtml(a.name)}</span>`; });
+    if (f) html+=`<span class="bc-sep">›</span><span class="bc-link" onclick="clickFolder('${f.id}')">${escHtml(f.name)}</span>`;
+    html+=`<span class="bc-sep">›</span><span class="bc-cur">${escHtml(note.title)}</span>`;
+  } else if (folder) {
+    getAncestors(folder).forEach(a=>{ html+=`<span class="bc-sep">›</span><span class="bc-link" onclick="clickFolder('${a.id}')">${escHtml(a.name)}</span>`; });
+    html+=`<span class="bc-sep">›</span><span class="bc-cur">${escHtml(folder.name)}</span>`;
+  }
+  el.innerHTML = html;
+}
+
+function goHome() {
+  if (_editModeActive) doneEditing();
+  state.activeId = null; state.activeType = null;
+  document.getElementById('topbarActions').innerHTML = '';
+  document.getElementById('breadcrumb').innerHTML = `<span class="bc-cur">DevVault</span>`;
+  setPanes('welcome'); renderTree();
+}
+
+function getAncestors(folder) {
+  if (!folder || !folder.id) return [];
+  const result = []; let cur = folder;
+  while (cur && cur.parentId) { const p = state.folders.find(f=>f.id===cur.parentId); if (!p) break; result.unshift(p); cur = p; }
+  return result;
+}
+
+function countNotesDeep(folderId) {
+  return state.notes.filter(n=>n.folderId===folderId).length +
+    state.folders.filter(f=>f.parentId===folderId).reduce((s,f)=>s+countNotesDeep(f.id),0);
+}
+
+// ── Folder modal ──
+let _folderModalParentId = null, _folderEditId = null;
+
+function openFolderModal(parentId) {
+  _folderModalParentId = parentId; _folderEditId = null;
+  document.getElementById('folderModalTitle').textContent = 'Create Folder';
+  document.getElementById('folderModalDesc').textContent = "Name your folder. Nest it inside another if you'd like.";
+  document.getElementById('folderModalBtn').textContent = 'Create';
+  document.getElementById('folderName').value = '';
+  const sel = document.getElementById('folderParent');
+  sel.innerHTML = '<option value="">None (top level)</option>' + state.folders.map(f=>`<option value="${f.id}" ${f.id===parentId?'selected':''}>${escHtml(f.name)}</option>`).join('');
+  document.getElementById('folderModal').classList.add('open');
+  setTimeout(()=>document.getElementById('folderName').focus(),100);
+}
+
+function closeFolderModal() { document.getElementById('folderModal').classList.remove('open'); }
+
+function confirmFolderModal() {
+  const name = document.getElementById('folderName').value.trim();
+  if (!name) { document.getElementById('folderName').focus(); return; }
+  const parentId = document.getElementById('folderParent').value || null;
+  const icons = ['📁','📂','📋','📚','🗂','🏷','⚙','🔧','🎯','💡','🔍','🌿','⚡','🕸','🔬','📊','🧩','🛠'];
+  if (_folderEditId) {
+    const folder = state.folders.find(f=>f.id===_folderEditId);
+    if (folder) { folder.name=name; folder.parentId=parentId; }
+    saveState(); closeFolderModal(); renderTree();
+    if (state.activeId===_folderEditId) showFolderView(folder);
+    showNotif('Folder renamed','success'); return;
+  }
+  const folder = { id:uid(), name, parentId, icon:icons[Math.floor(Math.random()*icons.length)] };
+  state.folders.push(folder);
+  if (parentId) state.openFolders.add(parentId);
+  state.openFolders.add(folder.id);
+  state.activeId = folder.id; state.activeType = 'folder';
+  saveState(); closeFolderModal(); renderTree(); showFolderView(folder);
+  showNotif('Folder created','success');
+}
+
+// ── Note editor (side panel) ──
+function openNoteEditor(defaultFolderId) {
+  state.editingNoteId = null;
+  document.getElementById('editorTitle').textContent = 'New Note';
+  document.getElementById('noteTitle').value = '';
+  document.getElementById('noteThoughts').value = '';
+  document.getElementById('noteCode').value = '';
+  document.getElementById('pasteContent').value = '';
+  document.getElementById('timeComp').value = '';
+  document.getElementById('spaceComp').value = '';
+  document.getElementById('noteTags').value = '';
+  document.getElementById('noteLang').value = 'java';
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.toggle('selected', b.dataset.type==='algorithm'));
+  state.selectedType = 'algorithm';
+  // Reset smart paste
+  document.getElementById('smartPasteInput').value = '';
+  document.getElementById('smartPasteInput').classList.remove('visible');
+  document.getElementById('smartZone').style.display = '';
+  document.getElementById('smartZone').classList.remove('has-content');
+  document.getElementById('parsePreview').classList.remove('show');
+  populateFolderSel(defaultFolderId||(state.activeType==='folder'?state.activeId:null));
+  switchTab('manual');
+  document.getElementById('editorPane').classList.add('open');
+  setTimeout(()=>document.getElementById('noteTitle').focus(),100);
+}
+
+function editNote(noteId) {
+  const note = state.notes.find(n=>n.id===noteId);
+  if (!note) return;
+  state.editingNoteId = noteId;
+  document.getElementById('editorTitle').textContent = 'Edit Note';
+  document.getElementById('noteTitle').value = note.title;
+  document.getElementById('noteThoughts').value = note.thoughts||'';
+  document.getElementById('noteCode').value = note.code||'';
+  document.getElementById('pasteContent').value = note.pasteContent||'';
+  document.getElementById('timeComp').value = note.timeComp||'';
+  document.getElementById('spaceComp').value = note.spaceComp||'';
+  document.getElementById('noteTags').value = (note.tags||[]).join(', ');
+  document.getElementById('noteLang').value = note.lang||'java';
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.toggle('selected', b.dataset.type===note.type));
+  state.selectedType = note.type;
+  if (note.rawMarkdown) {
+    document.getElementById('smartPasteInput').value = note.rawMarkdown;
+    document.getElementById('smartPasteInput').classList.add('visible');
+    document.getElementById('smartZone').style.display = 'none';
+    onSmartPasteInput(note.rawMarkdown);
+    switchTab('smart');
+  } else {
+    switchTab('manual');
+  }
+  populateFolderSel(note.folderId);
+  document.getElementById('editorPane').classList.add('open');
+}
+
+function populateFolderSel(selectedId) {
+  const opts = state.folders.length===0
+    ? '<option value="">No folders yet</option>'
+    : state.folders.map(f=>`<option value="${f.id}" ${f.id===selectedId?'selected':''}>${escHtml(f.name)}</option>`).join('');
+  document.getElementById('noteFolderSel').innerHTML = opts;
+  document.getElementById('smartFolderSel').innerHTML = opts;
+}
+
+function closeEditor() {
+  document.getElementById('editorPane').classList.remove('open');
+  state.editingNoteId = null;
+}
+
+function selectType(btn) {
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.selectedType = btn.dataset.type;
+}
+
+function handleGenerate() {
+  if (state.activeTab === 'smart') saveSmartNote();
+  else saveNote();
+}
+
+function saveNote() {
+  const title = document.getElementById('noteTitle').value.trim();
+  if (!title) { document.getElementById('noteTitle').focus(); return; }
+  const folderId = document.getElementById('noteFolderSel').value;
+  if (!folderId) { showNotif('Please create a folder first','info'); return; }
+  const noteData = {
+    id: state.editingNoteId||uid(), folderId,
+    type: state.selectedType, title,
+    thoughts: document.getElementById('noteThoughts').value.trim(),
+    code: document.getElementById('noteCode').value.trim(),
+    lang: document.getElementById('noteLang').value,
+    pasteContent: document.getElementById('pasteContent').value.trim(),
+    timeComp: document.getElementById('timeComp').value.trim(),
+    spaceComp: document.getElementById('spaceComp').value.trim(),
+    tags: document.getElementById('noteTags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    updatedAt: Date.now()
+  };
+  document.getElementById('genOverlay').classList.add('show');
+  setTimeout(()=>{
+    if (state.editingNoteId) { const idx=state.notes.findIndex(n=>n.id===state.editingNoteId); if(idx>=0) state.notes[idx]=noteData; }
+    else state.notes.push(noteData);
+    saveState(); document.getElementById('genOverlay').classList.remove('show'); closeEditor();
+    const folder=state.folders.find(f=>f.id===noteData.folderId);
+    if(folder){state.openFolders.add(folder.id);getAncestors(folder).forEach(a=>state.openFolders.add(a.id));}
+    state.activeId=noteData.id; state.activeType='note';
+    renderTree(); showNoteView(noteData);
+    showNotif(state.editingNoteId?'Note updated':'Note created','success');
+    state.editingNoteId=null;
+  }, 900);
+}
+
+function saveSmartNote() {
+  const raw = document.getElementById('smartPasteInput').value.trim();
+  if (!raw) { showNotif('Paste some content first','info'); return; }
+  const folderId = document.getElementById('smartFolderSel').value;
+  if (!folderId) { showNotif('Please create a folder first','info'); return; }
+  const parsed = parseMarkdown(raw);
+  if (!parsed.title) { showNotif('Could not detect a title — add a # heading','info'); return; }
+  const cb = parsed.codeBlocks[0];
+  const noteData = {
+    id: state.editingNoteId||uid(), folderId, type:'algorithm',
+    title: parsed.title,
+    thoughts:'', code: cb?cb.code:'', lang: cb?(cb.lang||'java'):'java',
+    pasteContent:'', timeComp:parsed.timeComp, spaceComp:parsed.spaceComp,
+    tags:parsed.tags, rawMarkdown:raw, parsed:true, updatedAt:Date.now()
+  };
+  document.getElementById('genOverlay').classList.add('show');
+  setTimeout(()=>{
+    if (state.editingNoteId) { const idx=state.notes.findIndex(n=>n.id===state.editingNoteId); if(idx>=0) state.notes[idx]=noteData; }
+    else state.notes.push(noteData);
+    saveState(); document.getElementById('genOverlay').classList.remove('show'); closeEditor();
+    const folder=state.folders.find(f=>f.id===noteData.folderId);
+    if(folder){state.openFolders.add(folder.id);getAncestors(folder).forEach(a=>state.openFolders.add(a.id));}
+    state.activeId=noteData.id; state.activeType='note';
+    renderTree(); showNoteView(noteData);
+    showNotif('Note created from markdown','success');
+    state.editingNoteId=null;
+  }, 900);
+}
+
+// ── Tab switching ──
+function switchTab(tab) {
+  state.activeTab = tab;
+  document.getElementById('tabManual').classList.toggle('active', tab==='manual');
+  document.getElementById('tabSmart').classList.toggle('active', tab==='smart');
+  document.getElementById('panelManual').style.display = tab==='manual'?'flex':'none';
+  document.getElementById('panelSmart').style.display = tab==='smart'?'flex':'none';
+}
+
+// ── Smart paste ──
+function activateSmartPaste() {
+  document.getElementById('smartZone').style.display = 'none';
+  const ta = document.getElementById('smartPasteInput');
+  ta.classList.add('visible'); ta.focus();
+}
+
+document.addEventListener('paste', function(e) {
+  const panel = document.getElementById('panelSmart');
+  if (!panel || panel.style.display === 'none') return;
+  const text = e.clipboardData.getData('text');
+  if (!text) return;
+  document.getElementById('smartZone').style.display = 'none';
+  const ta = document.getElementById('smartPasteInput');
+  ta.classList.add('visible'); ta.value = text;
+  onSmartPasteInput(text);
+});
+
+function onSmartPasteInput(text) {
+  if (!text.trim()) { document.getElementById('parsePreview').classList.remove('show'); return; }
+  document.getElementById('smartZone').classList.add('has-content');
+  const parsed = parseMarkdown(text);
+  document.getElementById('parsePreview').classList.add('show');
+  document.getElementById('ppTitle').textContent = parsed.title||'(from first heading)';
+  document.getElementById('ppTitle').className = 'pp-val '+(parsed.title?'good':'bad');
+  document.getElementById('ppSections').textContent = parsed.sections.length+' section'+(parsed.sections.length!==1?'s':'');
+  document.getElementById('ppCode').textContent = parsed.codeBlocks.length>0?parsed.codeBlocks.length+' block'+(parsed.codeBlocks.length!==1?'s':''):'none';
+  document.getElementById('ppCode').className = 'pp-val '+(parsed.codeBlocks.length>0?'good':'bad');
+  const comp=[parsed.timeComp,parsed.spaceComp].filter(Boolean).join(' / ');
+  document.getElementById('ppComplexity').textContent = comp||'not detected';
+  document.getElementById('ppComplexity').className = 'pp-val '+(comp?'good':'bad');
+  document.getElementById('ppTags').textContent = parsed.tags.length>0?parsed.tags.join(', '):'none detected';
+  document.getElementById('ppTags').className = 'pp-val '+(parsed.tags.length>0?'good':'bad');
+}
+
+// ── Context menu ──
+function openCtxMenu(e, id, type) {
+  e.stopPropagation();
+  state.ctxTarget = id; state.ctxTargetType = type;
+  const menu = document.getElementById('ctxMenu');
+  document.getElementById('ctxAddSub').style.display = type==='folder'?'flex':'none';
+  document.getElementById('ctxAddNote').style.display = type==='folder'?'flex':'none';
+  document.getElementById('ctxMove').style.display = 'flex';
+  document.getElementById('ctxRename').textContent = type==='folder'?'✏ Rename folder':'✏ Edit note';
+  menu.style.left = e.clientX+'px';
+  menu.style.top = Math.min(e.clientY, window.innerHeight-180)+'px';
+  menu.classList.add('open');
+}
+
+function closeCtxMenu() { document.getElementById('ctxMenu').classList.remove('open'); }
+
+function ctxRename() {
+  closeCtxMenu();
+  if (state.ctxTargetType==='folder') {
+    const folder = state.folders.find(f=>f.id===state.ctxTarget);
+    if (!folder) return;
+    _folderEditId = folder.id;
+    document.getElementById('folderModalTitle').textContent = 'Rename Folder';
+    document.getElementById('folderModalDesc').textContent = '';
+    document.getElementById('folderModalBtn').textContent = 'Save';
+    document.getElementById('folderName').value = folder.name;
+    const sel = document.getElementById('folderParent');
+    sel.innerHTML = '<option value="">None (top level)</option>' + state.folders.filter(f=>f.id!==folder.id).map(f=>`<option value="${f.id}" ${f.id===folder.parentId?'selected':''}>${escHtml(f.name)}</option>`).join('');
+    document.getElementById('folderModal').classList.add('open');
+    setTimeout(()=>document.getElementById('folderName').focus(),100);
+  } else { editNote(state.ctxTarget); }
+}
+
+function ctxAddSub() { closeCtxMenu(); openFolderModal(state.ctxTarget); }
+function ctxAddNote() { closeCtxMenu(); openNoteEditor(state.ctxTarget); }
+
+function ctxMove() {
+  closeCtxMenu();
+  openMoveModal(state.ctxTarget, state.ctxTargetType);
+}
+
+function ctxDelete() {
+  closeCtxMenu();
+  state.deleteId = state.ctxTarget; state.deleteType = state.ctxTargetType;
+  if (state.deleteType==='folder') {
+    const folder = state.folders.find(f=>f.id===state.deleteId);
+    const nc = countNotesDeep(state.deleteId);
+    document.getElementById('deleteTarget').textContent = 'Folder';
+    document.getElementById('deleteDesc').textContent = `Delete "${folder?.name}"? This will also delete ${nc} note${nc!==1?'s':''} inside it. This cannot be undone.`;
+  } else {
+    const note = state.notes.find(n=>n.id===state.deleteId);
+    document.getElementById('deleteTarget').textContent = 'Note';
+    document.getElementById('deleteDesc').textContent = `Delete "${note?.title}"? This cannot be undone.`;
+  }
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('open'); }
+
+function confirmDelete() {
+  if (state.deleteType==='folder') deleteFolderDeep(state.deleteId);
+  else state.notes = state.notes.filter(n=>n.id!==state.deleteId);
+  saveState(); closeDeleteModal();
+  if (state.activeId===state.deleteId) {
+    state.activeId=null; state.activeType=null;
+    setPanes('welcome');
+    document.getElementById('topbarActions').innerHTML='';
+    document.getElementById('breadcrumb').innerHTML=`<span class="bc-cur">DevVault</span>`;
+  }
+  renderTree(); showNotif('Deleted','info');
+}
+
+function deleteFolderDeep(folderId) {
+  state.folders.filter(f=>f.parentId===folderId).forEach(f=>deleteFolderDeep(f.id));
+  state.folders = state.folders.filter(f=>f.id!==folderId);
+  state.notes = state.notes.filter(n=>n.folderId!==folderId);
+  state.openFolders.delete(folderId);
+}
+
+function handleSearch(val) { renderTree(val.trim()||null); }
+
+// ── Contenteditable inline editing ──
+let _editModeActive = false, _currentNoteId = null, _inlineToolbar = null;
+
+function toggleEditMode() { _editModeActive ? doneEditing() : enterEditMode(); }
+
+function enterEditMode() {
+  _editModeActive = true;
+  const content = document.getElementById('noteContent');
+  const wrapper = document.getElementById('noteWrapper');
+  content.classList.add('edit-active');
+  wrapper.classList.add('edit-active');
+  content.querySelectorAll('[data-ce]').forEach(el => el.setAttribute('contenteditable','true'));
+  // Inject add-block rows into every section
+  content.querySelectorAll('.md-section').forEach(s => injectAddBlockRows(s));
+  // Show add-section row
+  const asr = document.getElementById('addSectionRow');
+  if (asr) asr.style.display = 'block';
+  const fab = document.getElementById('editFab');
+  fab.classList.add('editing');
+  document.getElementById('editFabIcon').innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l4 4 6-7"/></svg>';
+  document.getElementById('editFabLabel').textContent = 'Done';
+  createInlineToolbar();
+  // Close block picker on outside click
+  document.addEventListener('click', onOutsidePickerClick);
+}
+
+function doneEditing() {
+  _editModeActive = false;
+  const content = document.getElementById('noteContent');
+  const wrapper = document.getElementById('noteWrapper');
+  // Deactivate code editors first so textarea values are captured
+  content.querySelectorAll('.ce-code-wrap').forEach(wrap => deactivateCodeEditor(wrap));
+  // Remove add-block rows before saving (so they don't end up in markdown)
+  content.querySelectorAll('.md-section').forEach(s => removeAddBlockRows(s));
+  // Hide add-section row
+  const asr = document.getElementById('addSectionRow');
+  if (asr) asr.style.display = 'none';
+  saveEditsToNote();
+  content.classList.remove('edit-active');
+  wrapper.classList.remove('edit-active');
+  content.querySelectorAll('[data-ce]').forEach(el => el.setAttribute('contenteditable','false'));
+  const fab = document.getElementById('editFab');
+  fab.classList.remove('editing');
+  document.getElementById('editFabIcon').innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5a2.121 2.121 0 013 3L5 15H2v-3L11.5 2.5z"/></svg>';
+  document.getElementById('editFabLabel').textContent = 'Edit';
+  if (_inlineToolbar) { _inlineToolbar.remove(); _inlineToolbar = null; }
+  document.removeEventListener('selectionchange', onSelectionChange);
+  document.removeEventListener('click', onOutsidePickerClick);
+  closeBlockPicker();
+}
+
+function exitEditMode() { if (_editModeActive) doneEditing(); document.getElementById('editFab').classList.remove('visible'); }
+
+function saveEditsToNote() {
+  const noteId = document.getElementById('noteWrapper').dataset.noteId;
+  if (!noteId) return;
+  const note = state.notes.find(n=>n.id===noteId);
+  if (!note) return;
+  const md = domToMarkdown(document.getElementById('noteContent'));
+  if (!md.trim()) return;
+  note.rawMarkdown = md; note.parsed = true;
+  const parsed = parseMarkdown(md);
+  if (parsed.title) note.title = parsed.title;
+  if (parsed.timeComp) note.timeComp = parsed.timeComp;
+  if (parsed.spaceComp) note.spaceComp = parsed.spaceComp;
+  note.updatedAt = Date.now();
+  saveState(); renderTree();
+  showNotif('Saved','success');
+}
+
+function domToMarkdown(container) {
+  let md = '';
+  const titleEl = container.querySelector('.note-title-big[data-ce]');
+  if (titleEl) md += '# ' + titleEl.innerText.trim() + '\n\n';
+  container.querySelectorAll('.md-section').forEach(section => {
+    const h2 = section.querySelector('.md-h2[data-ce]');
+    if (h2) {
+      const numEl = h2.querySelector('.md-section-num');
+      const headingText = h2.innerText.replace(numEl?numEl.innerText:'','').trim();
+      md += '## ' + headingText + '\n\n';
+    }
+    section.querySelectorAll(':scope > *:not(.md-h2):not(.section-del-btn)').forEach(child => {
+      md += nodeToMarkdown(child);
+    });
+    md += '\n';
+  });
+  return md.trim();
+}
+
+function nodeToMarkdown(el) {
+  const text = el.innerText ? el.innerText.trim() : '';
+  if (el.classList.contains('md-h3')) return '### ' + text + '\n\n';
+  if (el.classList.contains('md-p')) return text + '\n\n';
+  if (el.classList.contains('md-blockquote')) return '> ' + text + '\n\n';
+  if (el.classList.contains('md-hr')) return '---\n\n';
+  if (el.classList.contains('md-ul')) { let s=''; el.querySelectorAll('li').forEach(li=>{s+='- '+li.innerText.trim()+'\n';}); return s+'\n'; }
+  if (el.classList.contains('md-ol')) { let s='',i=1; el.querySelectorAll('li').forEach(li=>{s+=i+++'. '+li.innerText.trim()+'\n';}); return s+'\n'; }
+  if (el.classList.contains('md-image-block')) {
+    const img = el.querySelector('img');
+    const cap = el.querySelector('.img-caption');
+    if (img) {
+      // Store image as data URL in a special markdown comment
+      return `<!--img:${img.src}-->\n${cap?cap.innerText.trim():''}\n\n`;
+    }
+    return '';
+  }
+  if (el.classList.contains('code-block')) {
+    const wrap = el.querySelector('.ce-code-wrap');
+    const ta = wrap?wrap.querySelector('textarea'):null;
+    const pre = wrap?wrap.querySelector('.code-body'):null;
+    const langSel = el.querySelector('.code-lang-sel');
+    const langEl = el.querySelector('.code-lang');
+    const lang = langSel?langSel.value:(langEl?langEl.textContent.toLowerCase():'java');
+    const code = (ta&&ta.value)?ta.value:(pre?pre.innerText:'');
+    return '```'+lang+'\n'+code.trim()+'\n```\n\n';
+  }
+  if (el.classList.contains('prose-block')) {
+    const label = el.querySelector('.block-label');
+    const textEl = el.querySelector('.prose-text');
+    let s='';
+    if (label) s+='### '+label.innerText.trim()+'\n\n';
+    if (textEl) s+=textEl.innerText.trim()+'\n\n';
+    return s;
+  }
+  return text?text+'\n\n':'';
+}
+
+function activateCodeEditor(e) {
+  if (!_editModeActive) return;
+  const wrap = e.target.closest('.ce-code-wrap');
+  if (!wrap) return;
+  const pre = wrap.querySelector('.code-body');
+  const ta = wrap.querySelector('textarea');
+  if (!pre||!ta) return;
+  if (!ta.value) ta.value = pre.innerText;
+  pre.classList.add('hidden');
+  ta.classList.add('active');
+  ta.focus();
+}
+
+function deactivateCodeEditor(wrap) {
+  if (!wrap) return;
+  const pre = wrap.querySelector('.code-body');
+  const ta = wrap.querySelector('textarea');
+  if (!pre||!ta||!ta.classList.contains('active')) return;
+  const langEl = wrap.closest('.code-block')?wrap.closest('.code-block').querySelector('.code-lang'):null;
+  const lang = langEl?langEl.textContent.toLowerCase():'java';
+  pre.innerHTML = highlightCode(ta.value, lang);
+  pre.classList.remove('hidden');
+  ta.classList.remove('active');
+}
+
+function codeEditorKey(e) {
+  if (e.key==='Tab') { e.preventDefault(); const ta=e.target,s=ta.selectionStart; ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(ta.selectionEnd); ta.selectionStart=ta.selectionEnd=s+2; }
+  if ((e.ctrlKey||e.metaKey)&&e.key==='s') { e.preventDefault(); deactivateCodeEditor(e.target.closest('.ce-code-wrap')); saveEditsToNote(); }
+}
+
+function createInlineToolbar() {
+  if (_inlineToolbar) _inlineToolbar.remove();
+  const tb = document.createElement('div');
+  tb.className = 'inline-toolbar'; tb.id = 'inlineToolbar';
+  tb.innerHTML = `<button class="it-btn" title="Bold" onclick="itFormat('bold')"><b>B</b></button><button class="it-btn" title="Italic" onclick="itFormat('italic')"><i>I</i></button><button class="it-btn" title="Code" onclick="itFormat('code')" style="font-family:var(--font-code);font-size:10px;">\`\`</button><div class="it-sep"></div><button class="it-btn" title="Strike" onclick="itFormat('strike')"><s>S</s></button>`;
+  document.body.appendChild(tb);
+  _inlineToolbar = tb;
+  document.addEventListener('selectionchange', onSelectionChange);
+}
+
+function onSelectionChange() {
+  if (!_inlineToolbar||!_editModeActive) return;
+  const sel = window.getSelection();
+  if (!sel||sel.isCollapsed||!sel.toString().trim()) { _inlineToolbar.classList.remove('show'); return; }
+  const noteContent = document.getElementById('noteContent');
+  if (!noteContent||!noteContent.contains(sel.anchorNode)) { _inlineToolbar.classList.remove('show'); return; }
+  const rect = sel.getRangeAt(0).getBoundingClientRect();
+  _inlineToolbar.style.left = (rect.left+rect.width/2-70)+'px';
+  _inlineToolbar.style.top = (rect.top-42+window.scrollY)+'px';
+  _inlineToolbar.classList.add('show');
+}
+
+function itFormat(type) {
+  const sel = window.getSelection();
+  if (!sel||sel.isCollapsed) return;
+  const selected = sel.toString();
+  const map = {bold:'**',italic:'*',code:'`',strike:'~~'};
+  const w = map[type];
+  document.execCommand('insertText', false, w+selected+w);
+  if (_inlineToolbar) _inlineToolbar.classList.remove('show');
+}
+
+function deleteSection(btn) {
+  if (!_editModeActive) return;
+  const section = btn.closest('.md-section');
+  if (!section) return;
+  section.style.transition='opacity 0.2s,transform 0.2s'; section.style.opacity='0'; section.style.transform='translateX(10px)';
+  setTimeout(()=>{ section.remove(); saveEditsToNote(); }, 200);
+}
+
+function addNewSection() {
+  const content = document.getElementById('noteContent');
+  const asr = document.getElementById('addSectionRow');
+  const div = document.createElement('div');
+  div.innerHTML = `<div class="md-section" style="opacity:0;transform:translateY(8px);transition:opacity 0.2s,transform 0.2s;"><button class="section-del-btn" onclick="deleteSection(this)" title="Delete section">✕</button><div class="md-h2" data-ce="true" contenteditable="true" style="outline:none;">New Section</div></div>`;
+  const newSection = div.firstElementChild;
+  if (asr && asr.parentNode === document.getElementById('noteWrapper')) {
+    document.getElementById('noteWrapper').insertBefore(newSection, asr);
+  } else {
+    content.appendChild(newSection);
+  }
+  // Inject an initial add-block row
+  injectAddBlockRows(newSection);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ newSection.style.opacity='1'; newSection.style.transform='translateY(0)'; }));
+  const h2 = newSection.querySelector('.md-h2');
+  if (h2) { h2.focus(); const range=document.createRange(); range.selectNodeContents(h2); const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range); }
+}
+
+function reconstructMarkdown(note) {
+  let md = `# ${note.title}\n\n`;
+  if (note.thoughts) md += `## Approach\n\n${note.thoughts}\n\n`;
+  if (note.code) md += `## Solution\n\`\`\`${note.lang||'java'}\n${note.code}\n\`\`\`\n\n`;
+  if (note.pasteContent) md += `## Notes\n\n${note.pasteContent}\n\n`;
+  if (note.timeComp||note.spaceComp) {
+    md += `## Complexity\n\n`;
+    if (note.timeComp) md += `Time complexity: \`${note.timeComp}\`\n\n`;
+    if (note.spaceComp) md += `Space complexity: \`${note.spaceComp}\`\n\n`;
+  }
+  return md.trim();
+}
+
+
+// ── Block picker ──
+let _blockTargetSection = null;
+
+function openBlockPicker(e, sectionEl) {
+  e.stopPropagation();
+  _blockTargetSection = sectionEl;
+  const picker = document.getElementById('blockPicker');
+  picker.classList.add('open');
+  const rect = e.target.getBoundingClientRect();
+  let top = rect.bottom + 6;
+  let left = rect.left;
+  if (left + 220 > window.innerWidth) left = window.innerWidth - 228;
+  if (top + 320 > window.innerHeight) top = rect.top - 326;
+  picker.style.top = top + 'px';
+  picker.style.left = left + 'px';
+}
+
+function closeBlockPicker() {
+  document.getElementById('blockPicker').classList.remove('open');
+  _blockTargetSection = null;
+}
+
+function insertBlock(type) {
+  closeBlockPicker();
+  if (!_blockTargetSection) return;
+  const ce = ' data-ce="true" contenteditable="true" style="outline:none;"';
+  let el;
+
+  if (type === 'text') {
+    el = document.createElement('p');
+    el.className = 'md-p';
+    el.setAttribute('data-ce','true');
+    el.setAttribute('contenteditable','true');
+    el.style.outline = 'none';
+    el.style.minHeight = '1.6em';
+    el.textContent = '';
+  } else if (type === 'h3') {
+    el = document.createElement('div');
+    el.className = 'md-h3';
+    el.setAttribute('data-ce','true');
+    el.setAttribute('contenteditable','true');
+    el.style.outline = 'none';
+    el.textContent = 'Subheading';
+  } else if (type === 'bullet') {
+    el = document.createElement('ul');
+    el.className = 'md-ul';
+    el.setAttribute('data-ce','true');
+    el.setAttribute('contenteditable','true');
+    el.style.outline = 'none';
+    const li = document.createElement('li');
+    li.textContent = 'List item';
+    el.appendChild(li);
+  } else if (type === 'numbered') {
+    el = document.createElement('ol');
+    el.className = 'md-ol';
+    el.setAttribute('data-ce','true');
+    el.setAttribute('contenteditable','true');
+    el.style.outline = 'none';
+    const li = document.createElement('li');
+    li.textContent = 'List item';
+    el.appendChild(li);
+  } else if (type === 'blockquote') {
+    el = document.createElement('div');
+    el.className = 'md-blockquote';
+    el.setAttribute('data-ce','true');
+    el.setAttribute('contenteditable','true');
+    el.style.outline = 'none';
+    el.textContent = 'Blockquote text';
+  } else if (type === 'divider') {
+    el = document.createElement('hr');
+    el.className = 'md-hr';
+  } else if (type === 'code') {
+    el = document.createElement('div');
+    el.className = 'code-block';
+    const cbId = 'cb_new_' + Date.now();
+    el.innerHTML = `<div class="code-header">
+      <select class="code-lang-sel" style="background:transparent;border:none;color:var(--accent2);font-family:var(--font-code);font-size:11px;cursor:pointer;outline:none;">
+        <option>java</option><option>python</option><option>javascript</option>
+        <option>cpp</option><option>go</option><option>sql</option><option>bash</option>
+      </select>
+      <button class="code-copy-btn" onclick="copyCode('${cbId}')">Copy</button>
+    </div>
+    <div class="ce-code-wrap">
+      <div class="code-body hidden" id="${cbId}"></div>
+      <textarea class="active" onblur="deactivateCodeEditor(this.closest('.ce-code-wrap'))" onkeydown="codeEditorKey(event)" placeholder="// paste or type code here..." style="display:block;"></textarea>
+    </div>`;
+    // Sync lang select to code-lang display
+    el.querySelector('.code-lang-sel').addEventListener('change', function() {
+      const pre = el.querySelector('.code-body');
+      const ta = el.querySelector('textarea');
+      if (pre && ta && ta.value) pre.innerHTML = highlightCode(ta.value, this.value);
+    });
+  } else if (type === 'image') {
+    el = document.createElement('div');
+    el.className = 'md-image-block';
+    const inputId = 'imgup_' + Date.now();
+    el.innerHTML = `<div class="img-upload-placeholder" onclick="document.getElementById('${inputId}').click()">
+      <div class="up-icon">🖼</div>
+      <div class="up-text">Click to upload image</div>
+      <div class="up-sub">PNG, JPG, GIF, WebP — stored locally in this note</div>
+      <input type="file" id="${inputId}" accept="image/*" onchange="handleImageUpload(event, this.closest('.md-image-block'))">
+    </div>
+    <div class="img-caption" contenteditable="true" style="outline:none;" placeholder="Caption (optional)"></div>`;
+  }
+
+  if (!el) return;
+
+  // Insert before the add-block-row that was clicked (or at end of section)
+  const addRows = _blockTargetSection.querySelectorAll('.add-block-row');
+  // Find the one that was last clicked — use _blockInsertBefore
+  const insertBefore = _blockInsertBefore || null;
+  if (insertBefore && _blockTargetSection.contains(insertBefore)) {
+    _blockTargetSection.insertBefore(el, insertBefore);
+  } else {
+    // Find section-del-btn and add before last add-block-row
+    const lastRow = addRows[addRows.length - 1];
+    if (lastRow) _blockTargetSection.insertBefore(el, lastRow);
+    else _blockTargetSection.appendChild(el);
+  }
+
+  // Insert a new add-block-row after this new element
+  const newRow = makeAddBlockRow(_blockTargetSection);
+  el.after(newRow);
+
+  // Focus new element
+  if (type === 'code') {
+    const ta = el.querySelector('textarea');
+    if (ta) ta.focus();
+  } else if (type === 'image') {
+    // nothing, user clicks
+  } else if (el.setAttribute) {
+    el.focus();
+    if (el.textContent) {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+    }
+  }
+}
+
+let _blockInsertBefore = null;
+
+function makeAddBlockRow(sectionEl) {
+  const row = document.createElement('div');
+  row.className = 'add-block-row';
+  row.innerHTML = `<div class="add-block-line"></div><button class="add-block-btn" onclick="onAddBlockClick(event, this)">+ Add block</button><div class="add-block-line"></div>`;
+  return row;
+}
+
+function onAddBlockClick(e, btn) {
+  e.stopPropagation();
+  const row = btn.closest('.add-block-row');
+  _blockInsertBefore = row;
+  _blockTargetSection = row.closest('.md-section');
+  const picker = document.getElementById('blockPicker');
+  picker.classList.add('open');
+  const rect = btn.getBoundingClientRect();
+  let top = rect.bottom + 6;
+  let left = rect.left + rect.width/2 - 110;
+  if (left < 8) left = 8;
+  if (left + 220 > window.innerWidth) left = window.innerWidth - 228;
+  if (top + 320 > window.innerHeight) top = rect.top - 326;
+  picker.style.top = top + 'px';
+  picker.style.left = left + 'px';
+}
+
+function handleImageUpload(event, block) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const placeholder = block.querySelector('.img-upload-placeholder');
+    if (placeholder) placeholder.remove();
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.borderRadius = 'var(--radius)';
+    block.insertBefore(img, block.querySelector('.img-caption'));
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Inject add-block rows into each section in edit mode ──
+function injectAddBlockRows(sectionEl) {
+  // Remove existing add-block-rows first
+  sectionEl.querySelectorAll('.add-block-row').forEach(r => r.remove());
+
+  // Get all direct children except h2, section-del-btn
+  const children = Array.from(sectionEl.children).filter(el =>
+    !el.classList.contains('md-h2') && !el.classList.contains('section-del-btn') && !el.classList.contains('add-block-row')
+  );
+
+  // Insert add-block-row before each content child
+  children.forEach(child => {
+    const row = makeAddBlockRow(sectionEl);
+    sectionEl.insertBefore(row, child);
+  });
+  // Add one at the end
+  sectionEl.appendChild(makeAddBlockRow(sectionEl));
+}
+
+function removeAddBlockRows(sectionEl) {
+  sectionEl.querySelectorAll('.add-block-row').forEach(r => r.remove());
+}
+
+
+function onOutsidePickerClick(e) {
+  const picker = document.getElementById('blockPicker');
+  if (picker && !picker.contains(e.target) && !e.target.classList.contains('add-block-btn')) {
+    closeBlockPicker();
+  }
+}
+
+
+// ── Theme toggle ──
+function initTheme() {
+  const saved = localStorage.getItem('devvault_theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved ? saved === 'dark' : prefersDark;
+  applyTheme(isDark);
+}
+
+function applyTheme(dark) {
+  const root = document.documentElement;
+  if (dark) {
+    root.classList.add('dark-mode');
+    root.setAttribute('data-theme', 'dark');
+  } else {
+    root.classList.remove('dark-mode');
+    root.removeAttribute('data-theme');
+  }
+  const sun = document.getElementById('themeIconSun');
+  const moon = document.getElementById('themeIconMoon');
+  if (sun) sun.style.display = dark ? 'block' : 'none';
+  if (moon) moon.style.display = dark ? 'none' : 'block';
+  localStorage.setItem('devvault_theme', dark ? 'dark' : 'light');
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.classList.contains('dark-mode');
+  applyTheme(!isDark);
+}
+
+
+// ══════════════════════════════════════════════
+//  Drag & Drop + Move to folder
+// ══════════════════════════════════════════════
+
+let _drag = {
+  id: null,        // id of item being dragged
+  type: null,      // 'note' | 'folder'
+  sourceRow: null, // DOM element
+  overFolderId: null,
+};
+
+// ── Wire drag events onto a tree row ──
+function addDragEvents(row, id, type, name) {
+  row.draggable = true;
+
+  row.addEventListener('dragstart', e => {
+    _drag.id = id;
+    _drag.type = type;
+    _drag.sourceRow = row;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+    // Use invisible image so our custom ghost shows
+    const blank = document.createElement('canvas');
+    blank.width = blank.height = 1;
+    e.dataTransfer.setDragImage(blank, 0, 0);
+    row.classList.add('dragging');
+    // Show ghost
+    const ghost = document.getElementById('dragGhost');
+    const iconEl = document.getElementById('dragGhostIcon');
+    const labelEl = document.getElementById('dragGhostLabel');
+    iconEl.innerHTML = type === 'folder'
+      ? '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 3.5A1 1 0 012.5 2.5h3.086a1 1 0 01.707.293L7.5 4.5H13.5a1 1 0 011 1v7a1 1 0 01-1 1h-11a1 1 0 01-1-1v-7.5z"/></svg>'
+      : '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3"/></svg>';
+    labelEl.textContent = name.length > 24 ? name.slice(0, 24) + '…' : name;
+    ghost.classList.add('show');
+  });
+
+  row.addEventListener('drag', e => {
+    if (e.clientX === 0 && e.clientY === 0) return;
+    const ghost = document.getElementById('dragGhost');
+    ghost.style.left = (e.clientX + 14) + 'px';
+    ghost.style.top  = (e.clientY - 18) + 'px';
+  });
+
+  row.addEventListener('dragend', () => {
+    row.classList.remove('dragging');
+    document.getElementById('dragGhost').classList.remove('show');
+    clearDropTargets();
+    _drag.id = null; _drag.type = null; _drag.sourceRow = null; _drag.overFolderId = null;
+  });
+}
+
+// ── Wire drop zone events onto a folder row ──
+function addDropZoneEvents(row, targetFolderId) {
+  row.addEventListener('dragover', e => {
+    if (!_drag.id) return;
+    // Can't drop a folder onto itself or its descendant
+    if (_drag.type === 'folder' && isDescendantOrSelf(_drag.id, targetFolderId)) return;
+    // Can't drop onto the same folder the item is already in
+    const currentFolderId = _drag.type === 'note'
+      ? (state.notes.find(n => n.id === _drag.id) || {}).folderId
+      : (state.folders.find(f => f.id === _drag.id) || {}).parentId;
+    if (targetFolderId === currentFolderId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    clearDropTargets();
+    row.classList.add('drop-target');
+    _drag.overFolderId = targetFolderId;
+  });
+
+  row.addEventListener('dragleave', e => {
+    // Only clear if truly leaving this row
+    if (!row.contains(e.relatedTarget)) {
+      row.classList.remove('drop-target');
+      if (_drag.overFolderId === targetFolderId) _drag.overFolderId = null;
+    }
+  });
+
+  row.addEventListener('drop', e => {
+    e.preventDefault();
+    row.classList.remove('drop-target');
+    if (!_drag.id) return;
+    executeMove(_drag.id, _drag.type, targetFolderId);
+  });
+}
+
+function clearDropTargets() {
+  document.querySelectorAll('.tree-row.drop-target').forEach(r => r.classList.remove('drop-target'));
+}
+
+// ── Check if folderId is a descendant of (or equal to) ancestorId ──
+function isDescendantOrSelf(ancestorId, folderId) {
+  if (ancestorId === folderId) return true;
+  let cur = state.folders.find(f => f.id === folderId);
+  while (cur && cur.parentId) {
+    if (cur.parentId === ancestorId) return true;
+    cur = state.folders.find(f => f.id === cur.parentId);
+  }
+  return false;
+}
+
+// ── Execute the move ──
+function executeMove(id, type, targetFolderId) {
+  if (type === 'note') {
+    const note = state.notes.find(n => n.id === id);
+    if (!note) return;
+    if (note.folderId === targetFolderId) return;
+    const oldFolderName = (state.folders.find(f => f.id === note.folderId) || {}).name || '…';
+    const newFolderName = (state.folders.find(f => f.id === targetFolderId) || {}).name || '…';
+    note.folderId = targetFolderId;
+    saveState();
+    // Expand target
+    state.openFolders.add(targetFolderId);
+    getAncestors(state.folders.find(f => f.id === targetFolderId) || {}).forEach(a => state.openFolders.add(a.id));
+    renderTree();
+    showNotif(`Moved to "${newFolderName}"`, 'success');
+    // If this note is currently open, refresh its breadcrumb
+    if (state.activeId === id && state.activeType === 'note') {
+      updateBreadcrumb(null, note);
+    }
+  } else if (type === 'folder') {
+    const folder = state.folders.find(f => f.id === id);
+    if (!folder) return;
+    if (isDescendantOrSelf(id, targetFolderId)) {
+      showNotif('Cannot move a folder into itself', 'info'); return;
+    }
+    if (folder.parentId === targetFolderId) return;
+    const newFolderName = (state.folders.find(f => f.id === targetFolderId) || {}).name || 'root';
+    folder.parentId = targetFolderId;
+    saveState();
+    state.openFolders.add(targetFolderId);
+    renderTree();
+    showNotif(`Folder moved to "${newFolderName}"`, 'success');
+  }
+}
+
+// ── Move to root (no parent) ──
+function executeMoveToRoot(id, type) {
+  if (type === 'folder') {
+    const folder = state.folders.find(f => f.id === id);
+    if (!folder || folder.parentId === null) return;
+    folder.parentId = null;
+    saveState(); renderTree();
+    showNotif('Moved to top level', 'success');
+  } else {
+    // notes must always be in a folder — can't move to root
+  }
+}
+
+// ══════════════════════════════════════════════
+//  Move to folder modal
+// ══════════════════════════════════════════════
+
+let _moveTarget = { id: null, type: null };
+let _moveSelectedFolderId = null;
+
+function openMoveModal(id, type) {
+  _moveTarget = { id, type };
+  _moveSelectedFolderId = null;
+
+  const item = type === 'note'
+    ? state.notes.find(n => n.id === id)
+    : state.folders.find(f => f.id === id);
+  if (!item) return;
+
+  document.getElementById('moveModalTitle').textContent =
+    type === 'note' ? `Move note` : `Move folder`;
+  document.getElementById('moveModalSub').textContent =
+    `"${(item.title || item.name || '').slice(0, 40)}"`;
+  document.getElementById('moveFolderSearch').value = '';
+  document.getElementById('moveConfirmBtn').disabled = true;
+  document.getElementById('moveBreadcrumb').textContent = 'No folder selected';
+  document.getElementById('moveBreadcrumb').innerHTML = 'No folder selected';
+
+  renderMoveFolderList('');
+  document.getElementById('moveModal').classList.add('open');
+  setTimeout(() => document.getElementById('moveFolderSearch').focus(), 100);
+}
+
+function closeMoveModal() {
+  document.getElementById('moveModal').classList.remove('open');
+  _moveTarget = { id: null, type: null };
+  _moveSelectedFolderId = null;
+}
+
+function renderMoveFolderList(query) {
+  const list = document.getElementById('moveFolderList');
+  const q = query.toLowerCase().trim();
+
+  // All folders except: the item itself (if folder), and descendants of it
+  let folders = state.folders.filter(f => {
+    if (_moveTarget.type === 'folder') {
+      if (isDescendantOrSelf(_moveTarget.id, f.id)) return false;
+    }
+    return true;
+  });
+
+  if (q) {
+    folders = folders.filter(f => f.name.toLowerCase().includes(q));
+  }
+
+  // Sort: alphabetical by full path
+  folders.sort((a, b) => getFolderPath(a).localeCompare(getFolderPath(b)));
+
+  if (folders.length === 0) {
+    list.innerHTML = `<div class="move-folder-empty">No folders found</div>`;
+    return;
+  }
+
+  const folderSvg = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 3.5A1 1 0 012.5 2.5h3.086a1 1 0 01.707.293L7.5 4.5H13.5a1 1 0 011 1v7a1 1 0 01-1 1h-11a1 1 0 01-1-1v-7.5z"/></svg>`;
+
+  // Determine current folder of the item
+  const currentFolderId = _moveTarget.type === 'note'
+    ? (state.notes.find(n => n.id === _moveTarget.id) || {}).folderId
+    : (state.folders.find(f => f.id === _moveTarget.id) || {}).parentId;
+
+  list.innerHTML = folders.map(f => {
+    const isCurrent = f.id === currentFolderId;
+    const isSelected = f.id === _moveSelectedFolderId;
+    const path = getFolderPathShort(f);
+    return `<div class="move-folder-item ${isCurrent ? 'current' : ''} ${isSelected ? 'selected' : ''}"
+      data-fid="${f.id}"
+      onclick="selectMoveFolder('${f.id}')">
+      <span class="mf-icon">${folderSvg}</span>
+      <span>${escHtml(f.name)}</span>
+      ${path ? `<span class="mf-path">${escHtml(path)}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function getFolderPath(folder) {
+  const parts = [folder.name];
+  let cur = folder;
+  while (cur.parentId) {
+    cur = state.folders.find(f => f.id === cur.parentId);
+    if (!cur) break;
+    parts.unshift(cur.name);
+  }
+  return parts.join(' / ');
+}
+
+function getFolderPathShort(folder) {
+  if (!folder.parentId) return '';
+  const ancestors = getAncestors(folder);
+  if (ancestors.length === 0) return '';
+  return ancestors.map(a => a.name).join(' › ');
+}
+
+function selectMoveFolder(folderId) {
+  _moveSelectedFolderId = folderId;
+  const folder = state.folders.find(f => f.id === folderId);
+  const path = folder ? getFolderPath(folder) : '';
+
+  // Update UI
+  document.querySelectorAll('.move-folder-item').forEach(el => {
+    el.classList.toggle('selected', el.dataset.fid === folderId);
+  });
+  document.getElementById('moveConfirmBtn').disabled = false;
+  document.getElementById('moveBreadcrumb').innerHTML =
+    `Moving to: <span>${escHtml(path)}</span>`;
+}
+
+function filterMoveFolders(query) {
+  renderMoveFolderList(query);
+  // Re-select if previously selected
+  if (_moveSelectedFolderId) {
+    const el = document.querySelector(`.move-folder-item[data-fid="${_moveSelectedFolderId}"]`);
+    if (el) el.classList.add('selected');
+  }
+}
+
+function confirmMove() {
+  if (!_moveSelectedFolderId || !_moveTarget.id) return;
+  executeMove(_moveTarget.id, _moveTarget.type, _moveSelectedFolderId);
+  closeMoveModal();
+}
+
+// Keyboard nav in move modal
+document.addEventListener('keydown', e => {
+  const modal = document.getElementById('moveModal');
+  if (!modal.classList.contains('open')) return;
+  if (e.key === 'Escape') { closeMoveModal(); return; }
+  if (e.key === 'Enter' && _moveSelectedFolderId) { confirmMove(); return; }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const items = Array.from(document.querySelectorAll('.move-folder-item:not(.current)'));
+    const curIdx = items.findIndex(el => el.classList.contains('selected'));
+    const nextIdx = e.key === 'ArrowDown'
+      ? Math.min(curIdx + 1, items.length - 1)
+      : Math.max(curIdx - 1, 0);
+    if (items[nextIdx]) {
+      selectMoveFolder(items[nextIdx].dataset.fid);
+      items[nextIdx].scrollIntoView({ block: 'nearest' });
+    }
+  }
+});
+
+// ── Global listeners ──
+document.addEventListener('click', () => closeCtxMenu());
+
+// Safe attach — all elements guaranteed to exist before script runs
+function safeOn(id, event, fn) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener(event, fn);
+  else console.warn('DevVault: element not found:', id);
+}
+
+safeOn('folderModal',  'click',   e => { if (e.target === document.getElementById('folderModal'))  closeFolderModal(); });
+safeOn('deleteModal',  'click',   e => { if (e.target === document.getElementById('deleteModal'))  closeDeleteModal(); });
+safeOn('moveModal',    'click',   e => { if (e.target === document.getElementById('moveModal'))    closeMoveModal(); });
+safeOn('folderName',   'keydown', e => { if (e.key === 'Enter') confirmFolderModal(); });
+
+// ── Init ──
+initTheme();
+renderTree();
+setPanes('welcome');
+</script>
+</body>
+</html>
