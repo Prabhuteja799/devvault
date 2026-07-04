@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1168,6 +1169,28 @@ body {
 .modal-desc { font-size: 13px; color: var(--text-sec); margin-bottom: 18px; line-height: 1.55; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
 
+/* ── Auth gate ── */
+#authGate { z-index: 900; }
+#authGate .modal { width: 340px; }
+.auth-field { margin-bottom: 12px; }
+.auth-field label { display: block; font-size: 11.5px; font-weight: 500; color: var(--text-sec); margin-bottom: 5px; }
+.auth-error { font-size: 12px; color: var(--red); background: var(--red-light); border-radius: var(--r-md); padding: 8px 10px; margin-bottom: 12px; display: none; line-height: 1.4; }
+.auth-toggle { font-size: 12.5px; color: var(--text-sec); text-align: center; margin-top: 14px; }
+.auth-toggle .bc-link { cursor: pointer; color: var(--accent); }
+
+.sidebar-footer {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border-md);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.sidebar-footer .sf-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-footer .sf-signout { cursor: pointer; color: var(--text-sec); flex-shrink: 0; }
+.sidebar-footer .sf-signout:hover { color: var(--accent); }
+
 .delete-modal {
   background: var(--bg-surface);
   border: 1px solid var(--border-md);
@@ -2034,6 +2057,25 @@ body {
 </head>
 <body>
 
+<!-- Auth gate -->
+<div class="modal-overlay" id="authGate">
+  <div class="modal">
+    <div class="modal-title" id="authTitle">Sign in to DevVault</div>
+    <div class="modal-desc">Your notes sync to the cloud and follow you across devices.</div>
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input class="field-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input class="field-input" id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;" id="authSubmitBtn" onclick="submitAuth()">Sign In</button>
+    <div class="auth-toggle" id="authToggleText">Don't have an account? <span class="bc-link" onclick="toggleAuthMode()">Sign up</span></div>
+  </div>
+</div>
+
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
@@ -2061,6 +2103,10 @@ body {
   <div class="sidebar-section-label">Library</div><div class="tree-scroll" id="treeEl"></div>
   <div class="sidebar-section-label" id="outlineLabel" style="display:none;">On this page</div>
   <div class="outline-scroll" id="outlineEl" style="display:none;"></div>
+  <div class="sidebar-footer" id="sidebarFooter" style="display:none;">
+    <span class="sf-email" id="userEmailLabel"></span>
+    <span class="sf-signout" onclick="signOut()">Sign out</span>
+  </div>
 </div>
 
 <!-- Main -->
@@ -2346,8 +2392,141 @@ function loadState() {
   try { const r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r); } catch(e){}
   return { folders: [], notes: [] };
 }
-function saveState() {
+function saveLocalCache() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ folders: state.folders, notes: state.notes })); } catch(e){}
+}
+function saveState() {
+  saveLocalCache();
+  queueCloudSync();
+}
+
+// ── Cloud sync (Supabase) ──
+// Create a free project at supabase.com, then paste your Project URL and anon
+// public key below (Settings → API). Run this SQL in the Supabase SQL editor
+// to create the table cloud sync needs:
+//
+//   create table vaults (
+//     user_id uuid primary key references auth.users(id) on delete cascade,
+//     data jsonb not null default '{}'::jsonb,
+//     updated_at timestamptz not null default now()
+//   );
+//   alter table vaults enable row level security;
+//   create policy "select own vault" on vaults for select using (auth.uid() = user_id);
+//   create policy "insert own vault" on vaults for insert with check (auth.uid() = user_id);
+//   create policy "update own vault" on vaults for update using (auth.uid() = user_id);
+//
+const SUPABASE_URL = 'https://vorcticsrhuoqrcjgmua.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvcmN0aWNzcmh1b3FyY2pnbXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNzY0MDgsImV4cCI6MjA5ODc1MjQwOH0.Xa7WeOSQB8siS5TWz9_5OpDcRruuIhb6MiZnWBwJ300';
+const sb = (SUPABASE_URL.startsWith('YOUR_') || SUPABASE_ANON_KEY.startsWith('YOUR_'))
+  ? null
+  : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let _currentUser = null;
+let _cloudSyncTimer = null;
+let _authMode = 'signin';
+
+function queueCloudSync() {
+  if (!sb || !_currentUser) return;
+  clearTimeout(_cloudSyncTimer);
+  _cloudSyncTimer = setTimeout(pushCloudState, 600);
+}
+
+async function pushCloudState() {
+  if (!sb || !_currentUser) return;
+  const { error } = await sb.from('vaults').upsert({
+    user_id: _currentUser.id,
+    data: { folders: state.folders, notes: state.notes },
+    updated_at: new Date().toISOString()
+  });
+  if (error) showNotif('Cloud sync failed — will retry on next change', 'info');
+}
+
+async function loadCloudState() {
+  const { data, error } = await sb.from('vaults').select('data').eq('user_id', _currentUser.id).maybeSingle();
+  if (error) { showNotif('Could not load cloud data — using local copy', 'info'); return; }
+  if (data && data.data) {
+    state.folders = data.data.folders || [];
+    state.notes = data.data.notes || [];
+    saveLocalCache();
+  } else {
+    // First sign-in on this account: seed the cloud with whatever's in the local cache.
+    await pushCloudState();
+  }
+}
+
+function toggleAuthMode() {
+  _authMode = _authMode === 'signin' ? 'signup' : 'signin';
+  document.getElementById('authTitle').textContent = _authMode === 'signin' ? 'Sign in to DevVault' : 'Create your DevVault account';
+  document.getElementById('authSubmitBtn').textContent = _authMode === 'signin' ? 'Sign In' : 'Sign Up';
+  document.getElementById('authToggleText').innerHTML = _authMode === 'signin'
+    ? `Don't have an account? <span class="bc-link" onclick="toggleAuthMode()">Sign up</span>`
+    : `Already have an account? <span class="bc-link" onclick="toggleAuthMode()">Sign in</span>`;
+  document.getElementById('authError').style.display = 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  errEl.style.display = 'none';
+  if (!email || !password) { errEl.textContent = 'Enter an email and password.'; errEl.style.display = ''; return; }
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Please wait…';
+  try {
+    const { data, error } = _authMode === 'signin'
+      ? await sb.auth.signInWithPassword({ email, password })
+      : await sb.auth.signUp({ email, password });
+    if (error) throw error;
+    if (_authMode === 'signup' && !data.session) {
+      errEl.textContent = 'Check your email to confirm your account, then sign in.';
+      errEl.style.color = 'var(--accent)';
+      errEl.style.display = '';
+      btn.disabled = false; btn.textContent = 'Sign Up';
+      return;
+    }
+    await onAuthReady(data.session.user);
+  } catch (e) {
+    errEl.style.color = '';
+    errEl.textContent = e.message || 'Something went wrong.';
+    errEl.style.display = '';
+    btn.disabled = false; btn.textContent = _authMode === 'signin' ? 'Sign In' : 'Sign Up';
+  }
+}
+
+async function onAuthReady(user) {
+  _currentUser = user;
+  document.getElementById('authGate').classList.remove('open');
+  document.getElementById('sidebarFooter').style.display = '';
+  document.getElementById('userEmailLabel').textContent = user.email;
+  await loadCloudState();
+  renderTree();
+  setPanes('welcome');
+}
+
+async function signOut() {
+  if (sb) await sb.auth.signOut();
+  _currentUser = null;
+  state.folders = []; state.notes = [];
+  document.getElementById('sidebarFooter').style.display = 'none';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPassword').value = '';
+  if (_authMode !== 'signin') toggleAuthMode();
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = false; btn.textContent = 'Sign In';
+  document.getElementById('authGate').classList.add('open');
+  goHome();
+}
+
+async function initApp() {
+  initTheme();
+  if (!sb) {
+    renderTree(); setPanes('welcome');
+    showNotif('Cloud sync not configured — using local storage only', 'info');
+    return;
+  }
+  document.getElementById('authGate').classList.add('open');
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && session.user) await onAuthReady(session.user);
 }
 
 // ── State ──
@@ -3915,11 +4094,11 @@ safeOn('folderModal',  'click',   e => { if (e.target === document.getElementByI
 safeOn('deleteModal',  'click',   e => { if (e.target === document.getElementById('deleteModal'))  closeDeleteModal(); });
 safeOn('moveModal',    'click',   e => { if (e.target === document.getElementById('moveModal'))    closeMoveModal(); });
 safeOn('folderName',   'keydown', e => { if (e.key === 'Enter') confirmFolderModal(); });
+safeOn('authEmail',    'keydown', e => { if (e.key === 'Enter') submitAuth(); });
+safeOn('authPassword', 'keydown', e => { if (e.key === 'Enter') submitAuth(); });
 
 // ── Init ──
-initTheme();
-renderTree();
-setPanes('welcome');
+initApp();
 </script>
 </body>
 </html>
